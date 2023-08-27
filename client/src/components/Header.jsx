@@ -2,26 +2,45 @@ import { NavLink } from "react-router-dom";
 import { pages } from "../main";
 import { AiOutlineMenuUnfold, AiFillCloseCircle } from "react-icons/ai";
 import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
+import { api } from "../utils.js";
+import { DataContext } from "../App";
+import { useContext } from "react";
+
 export default function Header() {
+  const { setPostings } = useContext(DataContext);
   const [openMenu, setOpenMenu] = useState(false);
+  const [openAdd, setOpenAdd] = useState(true);
+  const [addPos, setAddPost] = useState({});
+  const user = useOutletContext()[0];
   return (
     <>
-      <header className="md:border-r-2 p-3 border-black sticky  w-full  md:w-1/4 bg-gray-500 text-white flex md:h-screen flex-col justify-evenly  ">
+      <header className="md:border-r-2 p-3 border-black sticky  w-full  md:w-1/4 bg-gray-500 text-white flex md:h-screen flex-col justify-evenly">
         <div className="w-full h-screen flex-col justify-evenly hidden md:flex">
           <h1 className="text-center text-3xl">Al-Twit</h1>
           <nav className="flex gap-8 flex-col text-center">
-            {pages[3].children.map((page, i) => (
-              <NavLink key={i} to={page.path}>
-                {page.title}
-              </NavLink>
-            ))}
+            {pages[3].children.map((page, i) => {
+              if (page.title === "PROFIL") {
+                return (
+                  <NavLink key={i} to={`/profil/${user.id}`}>
+                    {page.title}
+                  </NavLink>
+                );
+              } else {
+                return (
+                  <NavLink key={i} to={page.path}>
+                    {page.title}
+                  </NavLink>
+                );
+              }
+            })}
           </nav>
-          <button>POST</button>
+          <button onClick={() => setOpenAdd(!openAdd)}>POST</button>
         </div>
         <div className="flex justify-center items-center md:hidden ">
           <h1 className="text-center text-3xl">Al-Twit</h1>
           <button
-            className="fixed left-3"
+            className="absolute left-3"
             onClick={() => setOpenMenu(!openMenu)}
           >
             <AiOutlineMenuUnfold />
@@ -36,12 +55,73 @@ export default function Header() {
           >
             <AiFillCloseCircle size={20} />
           </button>
-          {pages[0].children.map((page, i) => (
-            <NavLink key={i} to={page.path}>
-              {page.title}
-            </NavLink>
-          ))}
+          {pages[3].children.map((page, i) => {
+            if (page.title === "PROFIL") {
+              return (
+                <NavLink key={i} to={`/profil/${user.id}`}>
+                  {page.title}
+                </NavLink>
+              );
+            } else {
+              <NavLink key={i} to={page.path}>
+                {page.title}
+              </NavLink>;
+            }
+          })}
         </nav>
+      )}
+      {!openAdd && (
+        <div className="block w-screen sm:w-full  fixed h-screen left-0 top-0 z-50  overflow-y-hidden">
+          <form
+            className="absolute bg-white flex flex-col gap-4 p-8 rounded-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-[512px] shadow-xl  shadow-black"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              console.log(user.id);
+              const data = new FormData();
+              data.append("file", addPos.media);
+              data.append("content", addPos.content);
+              data.append("user", user.id);
+              const token = localStorage.getItem("token");
+              await fetch(`http://localhost:3000/api/posting/add`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+                body: data,
+              });
+              api("/posting").then((data) => {
+                setPostings(data);
+              });
+              setOpenAdd(!openAdd);
+            }}
+          >
+            <h3>Posting</h3>
+            <label>
+              Content
+              <input
+                type="text"
+                onChange={(e) =>
+                  setAddPost({ ...addPos, content: e.target.value })
+                }
+              />
+            </label>
+            <label>
+              Media
+              <input
+                type="file"
+                onChange={(e) =>
+                  setAddPost({ ...addPos, media: e.target.files[0] })
+                }
+              />
+            </label>
+            <div>
+              <button>SUBMIT</button>
+              <button type="button" onClick={() => setOpenAdd(!openAdd)}>
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </>
   );

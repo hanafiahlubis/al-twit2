@@ -1,0 +1,17 @@
+     const response = await fetch("http://localhost:3000/api/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(login),
+            });
+            if (response.ok) {
+              const auth = await response.json();
+              localStorage.setItem("token", auth.token);
+              setUser(auth.user);
+              navigate("/");
+            } else {
+              const message = await response.text();
+              alert(message);
+            }
+          }}
