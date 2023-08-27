@@ -8,6 +8,7 @@ import comentar from "./routes/comentar.js"
 import profil from "./routes/profil.js"
 import like from "./routes/like.js"
 import retweed from "./routes/redweet.js"
+import followers from "./routes/followers.js"
 // import { createClient } from '@supabase/supabase-js'
 
 // import multer from "multer";
@@ -95,6 +96,7 @@ router.use("/comentar", comentar);
 router.use("/profil", profil);
 router.use("/like", like);
 router.use("/retweed", retweed);
+router.use("/follower", followers);
 app.use("/api", router);
 
 

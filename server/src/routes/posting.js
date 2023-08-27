@@ -18,20 +18,77 @@ router.post("/add", type, async (req, res) => {
 
 router.get("/", async (_req, res) => {
     console.log("aaa");
-    const results = await client.query("SELECT p.id_user, p.id, a.full_name, a.email, p.content, p.media, p.time_now, id_user FROM akun a INNER JOIN post_al p ON a.id = p.id_user ORDER BY p.time_now DESC");
-    const twit = (await client.query(` select a.id, a.full_name, a.email, p1.id AS original_id, p1.content AS original_content, p1.media, p1.time_now, a2.id, a2.full_name,a2.email, p2.id AS retweet_id, p2.content AS retweet_content, p3.id AS retweet_retweet_id, p3.content AS retweet_retweet_content FROM post_al p1 left join  akun a  on p1.id_user = a.id  LEFT JOIN post_al p2 ON p1.id = p2.id_retweet left join akun a2 on p2.id_user_retweet  = a2.id LEFT JOIN post_al p3 ON p2.id = p3.id_retweet WHERE p1.id_retweet IS NULL`)).rows;
+    // const results = await client.query("SELECT p.id_user, p.id, a.full_name, a.email, p.content, p.media, p.time_now, id_user FROM akun a INNER JOIN post_al p ON a.id = p.id_user ORDER BY p.time_now DESC");
+    const twit = (await client.query(` 
+    WITH RECURSIVE retweet_chain AS (
+        SELECT
+            id,
+            id_user,
+            content,
+            media,
+            time_now,
+            id_retweet,
+            isi,
+            id_user_retweet
+        FROM
+            post_al
+        WHERE
+            id_retweet IS NULL
+        UNION ALL
+        SELECT
+            pa.id,
+            pa.id_user,
+            pa.content,
+            pa.media,
+            pa.time_now,
+            pa.id_retweet,
+            pa.isi,
+            pa.id_user_retweet
+        FROM
+            retweet_chain rc
+        JOIN
+            post_al pa ON rc.id = pa.id_retweet
+    )
+    SELECT
+        rc.id,
+        rc.id_user,
+        u.full_name ,
+        u.email ,
+        u.username ,
+        rc.content,
+        rc.media,
+        rc.time_now,
+        rc.id_retweet,
+        rc.isi,
+        COALESCE(a.username, '') AS retweeter_username,
+        COALESCE(a.full_name, '') AS retweeter_full_name
+    FROM
+        retweet_chain rc 
+        inner join akun u on u.id = rc.id_user 
+    LEFT JOIN
+        akun a ON rc.id_user_retweet = a.id
+    ORDER BY
+        rc.time_now DESC`)).rows;
 
+    const follower = (await client.query(`select * from follower`)).rows;
 
-    const combinedData = results.rows.concat(twit);
-    const postsWithImageUrls = combinedData.map(post => ({
+    const postsWithImageUrls = twit.map(post => ({
         ...post,
         mediaUrl: `http://localhost:3000/${post.media}`
     }));
 
-    // Urutkan data berdasarkan waktu yang paling besar     
-    const sortedData = postsWithImageUrls.sort((a, b) => (b.retweet_id || b.id) - (a.retweet_id || a.id));
+    const sortedData = postsWithImageUrls.sort((a, b) => (b.id) - (a.id));
+
+    const count = (await client.query(`SELECT p.id, COALESCE(rt.retweets_count, 0) AS retweets_count FROM post_al p LEFT JOIN ( SELECT id_retweet, COUNT(*) AS retweets_count FROM post_al WHERE id_retweet IS NOT NULL GROUP BY id_retweet) rt ON p.id = rt.id_retweet LEFT JOIN ( SELECT id_retweet, COUNT(*) AS metweets_count FROM post_al WHERE id_retweet IS NOT NULL AND id_user_retweet IS NOT NULL GROUP BY id_retweet ) mt ON p.id = mt.id_retweet ORDER BY p.id DESC;`)).rows;
+
+    const combinedData = sortedData.map(post => ({
+        ...post,
+        retweets_count: count.find(c => c.id === post.id)?.retweets_count || 0
+    }));
+
     res.json({
-        data: sortedData
+        data: combinedData,
+        follower
     });
 
 })

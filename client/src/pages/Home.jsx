@@ -24,12 +24,15 @@ export default function Home() {
   const [dataComentar, setDataComentar] = useState({});
   const [countComentar, setCountComentar] = useState([]);
   const [countRedweed, setCountRedweed] = useState([]);
+  const [dataFollower, setDataFollower] = useState([]);
+  const [follower, setFollower] = useState({});
   let temp = useRef();
 
   useEffect(() => {
     api("/posting").then((data) => {
       setPostings(data.data);
       setCountRedweed(data.redweed);
+      setDataFollower(data.follower);
     });
     api("/like/check").then((e) => {
       setChecks(e);
@@ -145,13 +148,56 @@ export default function Home() {
                   key={posting.id}
                   className="flex flex-col gap-4 "
                 >
-                  <Link
-                    to={`/profil/${posting.id_user}`}
-                    className="flex items-center w-full gap-4 "
-                  >
-                    <h3 className="text-2xl font-bold">{posting.full_name}</h3>
-                    <p className="text-sm ">{posting.email}</p>
-                  </Link>
+                  <div className="flex">
+                    <Link
+                      to={`/profil/${posting.id_user}`}
+                      className="flex items-center w-full gap-4 "
+                    >
+                      <h3 className="text-2xl font-bold">
+                        {posting.full_name}
+                      </h3>
+                      <p className="text-sm ">{posting.email}</p>
+                    </Link>
+                    <div>
+                      {posting.id_user !== user.id && (
+                        <>
+                          {dataFollower.find(
+                            (follower) =>
+                              follower.id_user === user.id &&
+                              follower.id_user_to === posting.id_user
+                          ) ? (
+                            <Link
+                              onClick={() => {
+                                setFollower({
+                                  ...follower,
+                                  me: user.id,
+                                  to: posting.id_user,
+                                });
+                                console.log(follower);
+                                api("/follower", "DELETE", follower);
+                              }}
+                            >
+                              UnFollower
+                            </Link>
+                          ) : (
+                            <Link
+                              onClick={() => {
+                                setFollower({
+                                  ...follower,
+                                  me: user.id,
+                                  to: posting.id_user,
+                                });
+                                console.log(follower);
+                                api("/follower", "POST", follower);
+                              }}
+                            >
+                              Follower
+                            </Link>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
                   <p className="text-justify">{posting.content}</p>
                   <img
                     className="m-auto"
@@ -211,18 +257,27 @@ export default function Home() {
                         setOpenRetweet(!openRetweet);
                         setDataComentar({
                           ...dataComentar,
-                          retweet: posting.id,
-                          content: posting.content,
-                          user_retweet: user.id,
-                          email: posting.email,
-                          name: posting.full_name,
+                          ...posting,
+                          user: user.id,
                         });
+                        console.log(dataComentar);
+                        // setDataComentar({
+                        //   ...dataComentar,
+                        //   retweet: posting.id,
+                        //   content: posting.content,
+                        //   user_retweet: user.id,
+                        //   email: posting.email,
+                        //   name: posting.full_name,
+                        // });
+                        api("/retweed", "POST", dataComentar);
                       }}
                     />
                     {
-                      countRedweed?.find(
-                        (e) => e.id_retweet === posting.id && e
-                      ).count
+                      posting.retweets_count
+                      // countRedweed?.find(
+                      //   (e) =>
+                      //     e.id_retweet === posting.id && e === undefined && "0"
+                      // ).count
                     }
                   </button>
                   <button

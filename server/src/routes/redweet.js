@@ -6,9 +6,11 @@ const router = express.Router();
 router.post("/", async (req, res) => {
     console.log(req.body)
     try {
-        await client.query("insert into post_al (id_retweet,isi ,id_user_retweet,time_now) values($1,$2,$3,now())", [req.body.retweet, req.body.isi, req.body.user_retweet])
+        await client.query("insert into post_al  values(default, $1, $2, $3, now(),$4, $5, $6)", [req.body.id_user, req.body.content, req.body.media, req.body.id, req.body.isi, req.body.user])
+        // await client.query("insert into post_al (id_retweet,isi ,id_user_retweet,time_now) values($1,$2,$3,now())", [req.body.retweet, req.body.isi, req.body.user_retweet])
         res.send("Berhasil");
     } catch (error) {
+        console.log(error)
         res.status(500);
         res.send(error);
     }
