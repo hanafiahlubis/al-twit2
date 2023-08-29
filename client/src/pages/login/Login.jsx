@@ -5,7 +5,7 @@ import Rubric from "../../components/Rubric";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
-
+import { api } from "../../utils.js";
 export default function Login() {
   const [login, setLogin] = useState({});
   const navigate = useNavigate();
@@ -37,18 +37,23 @@ export default function Login() {
           className="flex flex-col gap-6"
           onSubmit={async (e) => {
             e.preventDefault();
-            const response = await fetch("http://localhost:3000/api/login", {
+            const response = await fetch(`http://localhost:3000/api/login`, {
               method: "POST",
+              credentials: "include",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify(login),
             });
             if (response.ok) {
-              const auth = await response.json();
-              localStorage.setItem("token", auth.token);
-              setUser(auth.user);
+              setUser(await api.get("/login/me"));
               navigate("/");
+
+              // localStorage
+              // const auth = await response.json();
+              // localStorage.setItem("token", auth.token);
+              // setUser(auth.user);
+              // navigate("/");
             } else {
               const message = await response.text();
               alert(message);

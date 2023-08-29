@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 // import cookieParser from "cookie-parser";
 import client from "../connection.js";
-
+import auth from "../middlewares/auth.js"
 const router = express.Router();
 
 async function chekEmail(email) {
@@ -55,11 +55,19 @@ router.put("/forgout", async (req, res) => {
 // Untuk mengakses file statis(khusus Vercel)
 
 router.post("/", async (req, res) => {
+    console.log(req.body)
     const user = (await chekEmail(req.body.email)).rows;
     console.log(user)
     if (user.length > 0) {
         if (await bcrypt.compare(req.body.password, user[0].password)) {
-            res.json({ token: jwt.sign(user[0], process.env.SECRET_KEY), user: user[0] });
+            const token = jwt.sign(user[0], process.env.SECRET_KEY);
+            res
+                .cookie("jwt", token, {
+                    httpOnly: true,
+                    // secure: true,
+                })
+                .send("Login berhasil.");
+            // res.json({ token: jwt.sign(user[0], process.env.SECRET_KEY), user: user[0] });
         } else {
             res.status(401);
             res.send("Kata sandi salah.");
@@ -70,6 +78,14 @@ router.post("/", async (req, res) => {
 
     }
 });
+router.use(auth)
+router.get("/me", (req, res) => {
+    console.log(req.user)
+    res.json(req.user);
+});
 
+router.post("/logout", (_req, res) => {
+    res.clearCookie("jwt").send("Logout berhasil.");
+});
 export default router;
 

@@ -4,49 +4,114 @@ import { AiOutlineMenuUnfold, AiFillCloseCircle } from "react-icons/ai";
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { api } from "../utils.js";
-import { DataContext } from "../App";
+import { AllStateContext, DataContext } from "../App";
 import { useContext } from "react";
 
 export default function Header() {
   const { setPostings } = useContext(DataContext);
+  const {
+    openComentar,
+    setOpenComentar,
+    dataComentar,
+    setDataComentar,
+    setCountComentar,
+    openRetweet,
+    setOpenRetweet,
+    dataRetweet,
+    setDataRetweet,
+  } = useContext(AllStateContext);
+
   const [openMenu, setOpenMenu] = useState(false);
   const [openAdd, setOpenAdd] = useState(true);
   const [addPos, setAddPost] = useState({});
   const user = useOutletContext()[0];
   return (
     <>
-      <header className="md:border-r-2 p-3 border-black sticky  w-full  md:w-1/4 bg-gray-500 text-white flex md:h-screen flex-col justify-evenly">
-        <div className="w-full h-screen flex-col justify-evenly hidden md:flex">
-          <h1 className="text-center text-3xl">Al-Twit</h1>
-          <nav className="flex gap-8 flex-col text-center">
-            {pages[3].children.map((page, i) => {
-              if (page.title === "PROFIL") {
-                return (
-                  <NavLink key={i} to={`/profil/${user.id}`}>
-                    {page.title}
-                  </NavLink>
-                );
-              } else {
-                return (
-                  <NavLink key={i} to={page.path}>
-                    {page.title}
-                  </NavLink>
-                );
-              }
-            })}
-          </nav>
-          <button onClick={() => setOpenAdd(!openAdd)}>POST</button>
-        </div>
-        <div className="flex justify-center items-center md:hidden ">
-          <h1 className="text-center text-3xl">Al-Twit</h1>
-          <button
-            className="absolute left-3"
-            onClick={() => setOpenMenu(!openMenu)}
+      {openComentar && (
+        <div className="block w-screen  sm:w-full  fixed h-screen left-0 top-0 z-50  overflow-y-hidden">
+          <form
+            className="absolute bg-white flex flex-col gap-4 p-8 rounded-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-[512px] shadow-xl  shadow-black"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              console.log(dataComentar);
+              api.post("/comentar", dataComentar);
+
+              setCountComentar(await api.get("/comentar"));
+              setDataComentar({});
+              setOpenComentar(!openComentar);
+            }}
           >
-            <AiOutlineMenuUnfold />
-          </button>
+            <span className="flex items-center w-full gap-2 ">
+              <h3 className="text-2xl font-bold">{dataComentar.name}</h3>
+              <p className="text-sm ">{dataComentar.email}</p>
+            </span>
+            <h3>{dataComentar.content}</h3>
+            <textarea
+              cols="25"
+              rows="7"
+              autoFocus
+              required
+              placeholder="Post Your Reply"
+              className="resize-none focus:outline-none outline-double"
+              maxLength={153}
+              onChange={(e) => {
+                setDataComentar({
+                  ...dataComentar,
+                  commentar: e.target.value,
+                });
+              }}
+            ></textarea>
+            <button>SUBMIT</button>
+            <button
+              type="button"
+              onClick={() => setOpenComentar(!openComentar)}
+            >
+              Cancel
+            </button>
+          </form>
         </div>
-      </header>
+      )}
+      {openRetweet && (
+        <div className="block w-screen  sm:w-full  fixed h-screen left-0 top-0 z-50  overflow-y-hidden">
+          <form
+            className="absolute bg-white flex flex-col gap-4 p-8 rounded-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-[512px] shadow-xl  shadow-black"
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              await api.post("/retweed", dataRetweet);
+
+              setDataRetweet({});
+              setOpenRetweet(!openRetweet);
+            }}
+          >
+            <h1 className="text-2xl text-center font-bold">Retweet</h1>
+            <textarea
+              cols="25"
+              rows="7"
+              autoFocus
+              required
+              placeholder="Post Your Reply"
+              className="resize-none focus:outline-none outline-double"
+              maxLength={153}
+              onChange={(e) => {
+                setDataRetweet({
+                  ...dataRetweet,
+                  isi: e.target.value,
+                });
+              }}
+            ></textarea>
+            <span className="flex items-center w-full gap-2 ">
+              <h3 className="text-2xl font-bold">{dataRetweet.name}</h3>
+              <p className="text-sm ">{dataRetweet.email}</p>
+            </span>
+            <h3>{dataRetweet.content}</h3>
+            <button>SUBMIT</button>
+            <button type="button" onClick={() => setOpenRetweet(!openRetweet)}>
+              Cancel
+            </button>
+          </form>
+        </div>
+      )}
       {openMenu && (
         <nav className="flex md:hidden gap-8 flex-col text-center fixed top-[14px] p-6 left-1 rounded-md bg-cyan-700">
           <button
@@ -123,6 +188,38 @@ export default function Header() {
           </form>
         </div>
       )}
+      <header className="md:border-r-2 p-3 border-black sticky  w-full  md:w-1/5 bg-gray-500 text-white flex md:h-screen flex-col justify-evenly">
+        <div className="w-full h-screen flex-col justify-evenly hidden md:flex">
+          <h1 className="text-center text-3xl">Al-Twit</h1>
+          <nav className="flex gap-8 flex-col text-center">
+            {pages[3].children.map((page, i) => {
+              if (page.title === "PROFIL") {
+                return (
+                  <NavLink key={i} to={`/profil/${user.id}`}>
+                    {page.title}
+                  </NavLink>
+                );
+              } else {
+                return (
+                  <NavLink key={i} to={page.path}>
+                    {page.title}
+                  </NavLink>
+                );
+              }
+            })}
+          </nav>
+          <button onClick={() => setOpenAdd(!openAdd)}>POST</button>
+        </div>
+        <div className="flex justify-center items-center md:hidden ">
+          <h1 className="text-center text-3xl">Al-Twit</h1>
+          <button
+            className="absolute left-3"
+            onClick={() => setOpenMenu(!openMenu)}
+          >
+            <AiOutlineMenuUnfold />
+          </button>
+        </div>
+      </header>
     </>
   );
 }
