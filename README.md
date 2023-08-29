@@ -14,6 +14,6 @@ Untuk <B> User </B>
 - Kelola Follower
 - Kelola Retweet
 
-## Diagram ERDx`
+## Diagram ERD
 
 ![ssss](./client/public/x.png)
