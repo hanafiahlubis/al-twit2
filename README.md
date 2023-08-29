@@ -16,4 +16,4 @@ Untuk <B> User </B>
 
 ## Diagram ER
 
-![ssss](../x.png)
+![ssss](./client/public/x.png)
