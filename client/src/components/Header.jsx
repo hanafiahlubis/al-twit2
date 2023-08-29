@@ -154,7 +154,7 @@ export default function Header() {
                 },
                 body: data,
               });
-              api("/posting").then((data) => {
+              api.get("/posting").then((data) => {
                 setPostings(data);
               });
               setOpenAdd(!openAdd);
@@ -199,6 +199,8 @@ export default function Header() {
                     {page.title}
                   </NavLink>
                 );
+              } else if (page.title === "POST") {
+                return;
               } else {
                 return (
                   <NavLink key={i} to={page.path}>

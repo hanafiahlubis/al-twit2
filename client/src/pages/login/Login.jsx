@@ -4,37 +4,37 @@ import { Link } from "react-router-dom";
 import Rubric from "../../components/Rubric";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useGoogleLogin } from "@react-oauth/google";
+// import { useGoogleLogin } from "@react-oauth/google";
 import { api } from "../../utils.js";
 export default function Login() {
   const [login, setLogin] = useState({});
   const navigate = useNavigate();
   const [user, setUser] = useOutletContext();
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      const response = await fetch(
-        "https://www.googleapis.com/oauth2/v3/userinfo",
-        {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
-        }
-      );
-      const userInfo = await response.json();
-      console.log(userInfo);
-    },
-    // flow: 'implicit', // implicit is the default
-  });
+  // const googleLogin = useGoogleLogin({
+  //   onSuccess: async (tokenResponse) => {
+  //     const response = await fetch(
+  //       "https://www.googleapis.com/oauth2/v3/userinfo",
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${tokenResponse.access_token}`,
+  //         },
+  //       }
+  //     );
+  //     const userInfo = await response.json();
+  //     console.log(userInfo);
+  //   },
+  //   // flow: 'implicit', // implicit is the default
+  // });
 
   if (user) {
     return <Navigate to="/" />;
   } else {
     return (
-      <div className="flex items-center gap-4 h-screen justify-evenly w-full">
+      <div className="  flex-col          flex items-center gap-4 h-screen justify-evenly w-full bg-[#AEC3AE]">
         <Rubric />
         <form
-          className="flex flex-col gap-6"
+          className=" w-[80%] p-8 flex flex-col gap-6 bg-[#94A684] p-12 rounded-lg w-[37%]"
           onSubmit={async (e) => {
             e.preventDefault();
             const response = await fetch(`http://localhost:3000/api/login`, {
@@ -64,10 +64,12 @@ export default function Login() {
           <label className="flex flex-col">
             Email
             <input
+              autoFocus
               type="email"
               required
-              autoFocus
-              className="border border-black"
+              maxLength={30}
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"
+              className="border border-black "
               onChange={(e) => setLogin({ ...login, email: e.target.value })}
             />
           </label>
@@ -75,18 +77,31 @@ export default function Login() {
             Password
             <input
               type="password"
+              maxLength={30}
               required
               className="border border-black"
               onChange={(e) => setLogin({ ...login, password: e.target.value })}
             />
           </label>
-          <button>SUBMIT</button>
-          <div className="flex justify-between">
-            <Link to="/forgout">Lupa Pasword</Link>
-            <Link to="/register">Register</Link>
+          <button className="hover:bg-[#E4E4D0] hover:w-28 hover:rounded-2xl m-auto">
+            SUBMIT
+          </button>
+          <div className="flex justify-between w-full">
+            <Link
+              to="/forgout"
+              className="hover:bg-[#E4E4D0] hover:w-20 hover:rounded-2xl m-auto text-center w-[40%]"
+            >
+              Forgot
+            </Link>
+            <Link
+              to="/register"
+              className="hover:bg-[#E4E4D0] sm:hover:w-20 w-[40%] hover:rounded-2xl m-auto text-center"
+            >
+              Register
+            </Link>
           </div>
 
-          <button onClick={() => googleLogin()}>Login dengan Google</button>
+          {/* <button onClick={() => googleLogin()}>Login dengan Google</button> */}
         </form>
       </div>
     );

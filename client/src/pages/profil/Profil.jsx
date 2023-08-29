@@ -2,16 +2,16 @@ import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { api, checkz } from "../../utils.js";
+import { api } from "../../utils.js";
 import { useState } from "react";
 import Header from "../../components/Header";
 import { BsCalendarDate } from "react-icons/bs";
-import { AiFillLike } from "react-icons/ai";
-import { TfiCommentsSmiley } from "react-icons/tfi";
-import { FiShare2 } from "react-icons/fi";
+// import { AiFillLike } from "react-icons/ai";
+// import { TfiCommentsSmiley } from "react-icons/tfi";
+// import { FiShare2 } from "react-icons/fi";
 import { AllStateContext, DataContext } from "../../App";
 import { useContext } from "react";
-import { useRef } from "react";
+// import { useRef } from "react";
 import Postingan from "../../components/Postingan.jsx";
 
 export default function Profil() {
@@ -22,13 +22,13 @@ export default function Profil() {
   const [openLike, setOpenLike] = useState(false);
   // const { postings, setPostings } = useContext(DataContext);
   // console.log(postings);
-  const [like, setLike] = useState({ user: user?.id });
+  // const [like, setLike] = useState({ user: user?.id });
   // const [checks, setChecks] = useState([]);
   // const [count, setCount] = useState([]);
-  const [openComentar, setOpenComentar] = useState(false);
-  const [off, setOff] = useState(true);
+  // const [openComentar, setOpenComentar] = useState(false);
+  // const [off, setOff] = useState(true);
   // const [countComentar, setCountComentar] = useState([]);
-  let temp = useRef();
+  // let temp = useRef();
 
   const { postings, setPostings } = useContext(DataContext);
   const {
@@ -60,7 +60,9 @@ export default function Profil() {
     });
     api.get(`/posting/${id.id}`).then((data) => {
       setPostings(data.data);
+
       setDataFollower(data.follower);
+
       setCountComentar(data.comentar);
       setCount(data.like);
       setChecks(data.check);
@@ -119,7 +121,7 @@ export default function Profil() {
                 setCountComentar(data.comentar);
                 setCount(data.like);
                 setChecks(data.check);
-
+                setDataFollower(data.follower);
                 setOpenLike(!openLike);
                 setOpenPost(false);
               }}

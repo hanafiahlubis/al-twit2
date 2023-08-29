@@ -15,7 +15,6 @@ router.post("/add", type, async (req, res) => {
     res.send("berhasil")
 });
 
-
 router.get("/", async (_req, res) => {
     console.log("aaa");
     // const results = await client.query("SELECT p.id_user, p.id, a.full_name, a.email, p.content, p.media, p.time_now, id_user FROM akun a INNER JOIN post_al p ON a.id = p.id_user ORDER BY p.time_now DESC");
@@ -32,8 +31,6 @@ router.get("/", async (_req, res) => {
             id_user_retweet
         FROM
             post_al
-        WHERE
-            id_retweet IS NULL
         UNION ALL
         SELECT
             pa.id,
@@ -246,7 +243,36 @@ router.get("/:me/:id", async (req, res) => {
     console.log("aaaaaaaaaaa")
     let results;
     if (req.params.me === req.params.id) {
-        results = (await client.query("select * from post_al pa inner join akun a on pa.id_user = a.id  where pa.id in (select id_post from suka where chek = $1 and id_user = $2 ) order by pa.time_now desc", [true, req.params.me])).rows;
+        results = (await client.query(`SELECT
+        pa.id,
+            pa.id_user,
+            a.full_name,
+            a.email,
+            a.username,
+            pa.content,
+            pa.media,
+            pa.time_now,
+            pa.id_retweet,
+            pa.isi,
+            pa.id_user_retweet AS user_redweet,
+            u.email AS retweet_email,
+            u.username AS retweeter_username,
+            COALESCE(u.full_name, '') AS retweeter_full_name
+    FROM
+        post_al pa
+        INNER JOIN akun a ON pa.id_user = a.id
+        LEFT JOIN akun u ON pa.id_user_retweet = u.id
+    WHERE
+        pa.id IN(
+                SELECT id_post
+            FROM suka
+            WHERE chek = true
+            AND id_user = $1
+            ) 
+        OR pa.id_user_retweet = $2 
+    ORDER BY
+        pa.time_now DESC;
+        `, [req.params.me, req.params.me])).rows;
     } else {
         results = (await client.query(`SELECT
         pa.id,
@@ -291,14 +317,65 @@ router.get("/:me/:id", async (req, res) => {
     const like = (await client.query("select id_post,count(*) as banyak  from suka where  chek  = true and id_post  in(select id from  post_al pa where id_user = $1  )   group by id_post", [req.params.id])).rows;
     const comentar = (await client.query("select id_pos,count(*) as banyak  from commentar group by id_pos")).rows
     const check = (await client.query("select  * from suka where chek = true")).rows;
+    const follower = (await client.query(`select * from follower`)).rows;
     res.json({
         data: postsWithImageUrls,
         like,
-        comentar,
+        comentar, follower,
         check
     })
 
 })
+router.delete("/:id", async (req, res) => {
+    console.log("masuk")
+    try {
+        await client.query(`WITH RECURSIVE retweet_chain AS (
+            SELECT id, id_retweet
+            FROM post_al
+            WHERE id_retweet = $1
+            UNION ALL
+            SELECT p.id, p.id_retweet
+            FROM post_al p
+            JOIN retweet_chain rc ON p.id_retweet = rc.id
+        )
+        UPDATE post_al
+        SET id_retweet = NULL, id_user = NULL, content = NULL, media = NULL
+        WHERE id IN (SELECT id FROM retweet_chain);`, [req.params.id]);
 
+        await client.query(`DELETE FROM post_al WHERE id = $1;`, [req.params.id]);
+
+        res.send("Berhasil");
+    } catch (error) {
+        console.log(error)
+        res.status(500);
+        res.send(error);
+    }
+});
+
+router.put("/:id", async (req, res) => {
+    console.log("masuk")
+    try {
+        await client.query(`WITH RECURSIVE retweet_chain AS (
+            SELECT id, id_retweet
+            FROM post_al
+            WHERE id_retweet = $1
+            UNION ALL
+            SELECT p.id, p.id_retweet
+            FROM post_al p
+            JOIN retweet_chain rc ON p.id_retweet = rc.id
+        )
+        UPDATE post_al
+        SET  content = $2
+        WHERE id IN (SELECT id FROM retweet_chain);`, [req.params.id, req.body.isi]);
+
+        await client.query(`update post_al set content = $1 WHERE id = $2;`, [req.body.isi, req.params.id]);
+
+        res.send("Berhasil");
+    } catch (error) {
+        console.log(error)
+        res.status(500);
+        res.send(error);
+    }
+})
 
 export default router;

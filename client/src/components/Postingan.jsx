@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useRef } from "react";
 import { AiFillLike } from "react-icons/ai";
 import { TfiCommentsSmiley } from "react-icons/tfi";
+import { FaRegEdit } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
+import { AiTwotoneDelete } from "react-icons/ai";
+
 import { api, checkz } from "../utils.js";
 import { useNavigate } from "react-router-dom";
 import ProfilBio from "../components/ProfilBio";
@@ -141,45 +144,64 @@ export default function Postingan() {
                       />
                     </button>
                     <div>
-                      {posting.id_user !== user?.id && !posting.id_retweet && (
-                        <>
-                          {dataFollower.find(
-                            (follower) =>
-                              follower.id_user === user?.id &&
-                              follower.id_user_to === posting.id_user
-                          ) ? (
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                setFollower({
-                                  ...follower,
-                                  me: user?.id,
-                                  to: posting.id_user,
-                                });
+                      {posting.id_user !== user?.id &&
+                      posting.user_redweet !== user.id
+                        ? !posting.id_retweet && (
+                            <>
+                              {dataFollower.find(
+                                (follower) =>
+                                  follower.id_user === user?.id &&
+                                  follower.id_user_to === posting.id_user
+                              ) ? (
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    setFollower({
+                                      ...follower,
+                                      me: user?.id,
+                                      to: posting.id_user,
+                                    });
 
-                                await api.delete("/follower", follower);
-                              }}
-                            >
-                              UnFollower
-                            </button>
-                          ) : (
-                            <button
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                setFollower({
-                                  ...follower,
-                                  me: user?.id,
-                                  to: posting.id_user,
-                                });
-                                console.log(follower);
-                                await api.post("/follower", follower);
-                              }}
-                            >
-                              Follower
-                            </button>
+                                    await api.delete("/follower", follower);
+                                  }}
+                                >
+                                  UnFollower
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    setFollower({
+                                      ...follower,
+                                      me: user?.id,
+                                      to: posting.id_user,
+                                    });
+                                    console.log(follower);
+                                    await api.post("/follower", follower);
+                                  }}
+                                >
+                                  Follower
+                                </button>
+                              )}
+                            </>
+                          )
+                        : !posting.id_retweet && (
+                            <span>
+                              <FaRegEdit />
+                              <AiTwotoneDelete
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const chek = confirm(
+                                    `Apakah Anda Yakin ingin menghapus postingan ini ${posting.content}`
+                                  );
+                                  alert(
+                                    (await chek) &&
+                                      api.delete(`/posting/${posting.id}`)
+                                  );
+                                }}
+                              />
+                            </span>
                           )}
-                        </>
-                      )}
                     </div>
                   </div>
                   <Content isi={{ isi: posting.content }} />

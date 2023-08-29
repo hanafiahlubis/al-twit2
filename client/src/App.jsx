@@ -28,17 +28,24 @@ export default function App() {
   const [user, setUser] = useState();
   const [postings, setPostings] = useState([]);
   useEffect(() => {
-    api.get("/login/me").then((me) => {
-      if (!me) {
-        setUser(null);
-      } else {
-        setUser(me);
-        setLike({ user: me.id });
-        // setPostings({ ...postings, user: me.id });
-      }
+    api
+      .get("/login/me")
+      .then((me) => {
+        if (!me) {
+          console.log("sbbbsss");
 
-      setLoading(false);
-    });
+          setUser(null);
+        } else {
+          setUser(me);
+          setLike({ user: me.id });
+          // setPostings({ ...postings, user: me.id });
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+      });
   }, [user?.id]);
   return (
     <AllStateContext.Provider

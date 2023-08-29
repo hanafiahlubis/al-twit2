@@ -81,7 +81,12 @@ router.post("/", async (req, res) => {
 router.use(auth)
 router.get("/me", (req, res) => {
     console.log(req.user)
-    res.json(req.user);
+    try {
+        res.json(req.user);
+    } catch (error) {
+        res.status(404);
+        res.send("belum login")
+    }
 });
 
 router.post("/logout", (_req, res) => {
