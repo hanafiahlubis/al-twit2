@@ -12,8 +12,8 @@ Untuk <B> User </B>
 - Kelola Like
 - Kelola Comentar
 - Kelola Follower
-- Kelola Redwet
+- Kelola Retweet
 
-## Diagram ER
+## Diagram ERDx`
 
 ![ssss](./client/public/x.png)

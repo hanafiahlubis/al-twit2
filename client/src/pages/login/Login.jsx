@@ -31,10 +31,10 @@ export default function Login() {
     return <Navigate to="/" />;
   } else {
     return (
-      <div className="  flex-col          flex items-center gap-4 h-screen justify-evenly w-full bg-[#AEC3AE]">
+      <div className="flex-col sm:flex-row  flex items-center gap-4 h-screen justify-evenly w-full bg-[#AEC3AE]">
         <Rubric />
         <form
-          className=" w-[80%] p-8 flex flex-col gap-6 bg-[#94A684] p-12 rounded-lg w-[37%]"
+          className="w-[80%] sm:w-[46%] lg:w-[34%] flex flex-col gap-6 bg-[#94A684] p-12 rounded-lg "
           onSubmit={async (e) => {
             e.preventDefault();
             const response = await fetch(`http://localhost:3000/api/login`, {
@@ -48,19 +48,13 @@ export default function Login() {
             if (response.ok) {
               setUser(await api.get("/login/me"));
               navigate("/");
-
-              // localStorage
-              // const auth = await response.json();
-              // localStorage.setItem("token", auth.token);
-              // setUser(auth.user);
-              // navigate("/");
             } else {
               const message = await response.text();
               alert(message);
             }
           }}
         >
-          <h3 className="text-3xl  text-center">Login</h3>
+          <h3 className="text-3xl text-center">Login</h3>
           <label className="flex flex-col">
             Email
             <input
@@ -89,13 +83,13 @@ export default function Login() {
           <div className="flex justify-between w-full">
             <Link
               to="/forgout"
-              className="hover:bg-[#E4E4D0] hover:w-20 hover:rounded-2xl m-auto text-center w-[40%]"
+              className="hover:bg-[#E4E4D0]  hover:rounded-2xl m-auto text-center w-[40%]"
             >
               Forgot
             </Link>
             <Link
               to="/register"
-              className="hover:bg-[#E4E4D0] sm:hover:w-20 w-[40%] hover:rounded-2xl m-auto text-center"
+              className="hover:bg-[#E4E4D0]  w-[40%] hover:rounded-2xl m-auto text-center"
             >
               Register
             </Link>

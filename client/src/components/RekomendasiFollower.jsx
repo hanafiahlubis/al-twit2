@@ -2,21 +2,11 @@ import { useContext } from "react";
 import { AllStateContext } from "../App";
 import { api } from "../utils";
 import { useOutletContext } from "react-router-dom";
-import { useEffect } from "react";
-
 export default function RekomendasiFollower() {
-  const { allFollower, setFollower, follower } = useContext(AllStateContext);
+  const { allFollower, setAllFollower, setFollower } =
+    useContext(AllStateContext);
   const user = useOutletContext()[0];
-  useEffect(() => {
-    if (follower.me && follower.to) {
-      console.log(follower);
 
-      postData();
-    }
-  }, [follower]);
-  async function postData() {
-    await api.post("/follower", follower);
-  }
   return (
     <div className="h-screen flex  items-center w-[30%] sticky top-0">
       <div className="flex flex-col p-1 rounded-lg border-black border-[1px]">
@@ -24,17 +14,24 @@ export default function RekomendasiFollower() {
           Rekomendasi Following
         </h1>
         <div className="h-max  w-full flex flex-col gap-5 ">
-          {allFollower?.map((x, i) => (
+          {allFollower?.map((follower, i) => (
             <span key={i} className="flex justify-between">
-              <h3>{x.full_name} </h3>
+              <h3>{follower.full_name} </h3>
               <button
-                onClick={() => {
-                  setFollower({
+                onClick={async () => {
+                  await api.post("/follower", {
                     ...follower,
                     me: user?.id,
-                    to: x.id,
+                    to: follower.id,
                   });
-                  console.log(follower);
+                  api.get("/posting").then(() => {
+                    setAllFollower(
+                      allFollower.filter((f) => f.id !== follower.id)
+                    );
+                    console.log(allFollower);
+
+                    setFollower({});
+                  });
                   // api.post("/follower", follower);
                 }}
               >

@@ -33,11 +33,8 @@ create table suka(
 );
 
 
-
-
 ALTER TABLE post_al ADD CONSTRAINT fk_user FOREIGN KEY (id_user) REFERENCES akun (id);
 ALTER TABLE post_al ADD CONSTRAINT fk_bagi FOREIGN KEY (id_retweet) REFERENCES  post_al(id);
-ALTER TABLE post_al ADD CONSTRAINT fk_id_user_like FOREIGN KEY (id_user_like) REFERENCES akun (id);
 
 select * from akun
 create table commentar(

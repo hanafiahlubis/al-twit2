@@ -22,9 +22,10 @@ export default function App() {
   const [checks, setChecks] = useState([]);
   const [count, setCount] = useState([]);
 
+  const [countentComentar, setCountentComentar] = useState([]);
   const [allFollower, setAllFollower] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  // cosn
   const [user, setUser] = useState();
   const [postings, setPostings] = useState([]);
   useEffect(() => {

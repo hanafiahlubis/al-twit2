@@ -3,17 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import Header from "../components/Header";
 import { AllStateContext, DataContext } from "../App";
-import { useState } from "react";
-import { useRef } from "react";
-import { AiFillLike } from "react-icons/ai";
-import { TfiCommentsSmiley } from "react-icons/tfi";
-import { FiShare2 } from "react-icons/fi";
-import { Link } from "react-router-dom";
-import { api, checkz } from "../utils.js";
-import { useNavigate } from "react-router-dom";
-import ProfilBio from "../components/ProfilBio";
-import Content from "../components/Content";
-import RekomendasiFollower from "../components/RekomendasiFollower";
+import { api } from "../utils.js";
 import Postingan from "../components/Postingan";
 
 // import Protected from "../components/Protected";
@@ -24,27 +14,12 @@ import Postingan from "../components/Postingan";
 
 export default function Home() {
   const user = useOutletContext()[0];
-  const { postings, setPostings } = useContext(DataContext);
+  const { setPostings } = useContext(DataContext);
   const {
-    // openComentar,
-    // setOpenComentar,
-    // dataComentar,
-    // setDataComentar,
-    // countComentar,
     setCountComentar,
-    // like,
-    // setLike,
-    // openRetweet,
-    // setOpenRetweet,
-    // dataRetweet,
-    // setDataRetweet,
-    // dataFollower,
     setDataFollower,
-    // checks,
     setChecks,
-    // count,
     setCount,
-    // allFollower,
     setAllFollower,
   } = useContext(AllStateContext);
 
@@ -57,7 +32,6 @@ export default function Home() {
 
   useEffect(() => {
     api.get("/posting").then((data) => {
-      console.log(data);
       setPostings(data.data);
       setDataFollower(data.follower);
       console.log(data.follower);
