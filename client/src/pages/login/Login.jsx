@@ -1,103 +1,103 @@
-import { useNavigate } from "react-router-dom";
-import { useOutletContext } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, useOutletContext, Link, Navigate } from "react-router-dom";
 import Rubric from "../../components/Rubric";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
-// import { useGoogleLogin } from "@react-oauth/google";
+import { Button, Form, Input } from "antd";
 import { api } from "../../utils.js";
+
 export default function Login() {
   const [login, setLogin] = useState({});
   const navigate = useNavigate();
   const [user, setUser] = useOutletContext();
 
-  // const googleLogin = useGoogleLogin({
-  //   onSuccess: async (tokenResponse) => {
-  //     const response = await fetch(
-  //       "https://www.googleapis.com/oauth2/v3/userinfo",
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${tokenResponse.access_token}`,
-  //         },
-  //       }
-  //     );
-  //     const userInfo = await response.json();
-  //     console.log(userInfo);
-  //   },
-  //   // flow: 'implicit', // implicit is the default
-  // });
+  if (user) return <Navigate to="/" />;
 
-  if (user) {
-    return <Navigate to="/" />;
-  } else {
-    return (
-      <div className="flex-col sm:flex-row  flex items-center gap-4 h-screen justify-evenly w-full bg-[#AEC3AE]">
-        <Rubric />
-        <form
-          className="w-[80%] sm:w-[46%] lg:w-[34%] flex flex-col gap-6 bg-[#94A684] p-12 rounded-lg "
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const response = await fetch(`http://localhost:3000/api/login`, {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(login),
-            });
-            if (response.ok) {
-              setUser(await api.get("/login/me"));
-              navigate("/");
-            } else {
-              const message = await response.text();
-              alert(message);
-            }
-          }}
+  const onFinish = async () => {
+    const response = await fetch(`http://localhost:3000/api/login`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(login),
+    });
+
+    if (response.ok) {
+      setUser(await api.get("/login/me"));
+      navigate("/");
+    } else {
+      const message = await response.text();
+      alert(message);
+    }
+  };
+
+  return (
+    <div className="flex-col sm:flex-row flex items-center gap-4 h-screen justify-evenly w-full bg-[#AEC3AE]">
+      <Rubric />
+      <div className="w-[80%] sm:w-[46%] lg:w-[34%] bg-[#94A684] p-12 rounded-lg">
+        <h3 className="text-3xl text-center mb-6">Login</h3>
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
+          validateTrigger="onSubmit"
+          className="space-y-4"
         >
-          <h3 className="text-3xl text-center">Login</h3>
-          <label className="flex flex-col">
-            Email
-            <input
-              autoFocus
-              type="email"
-              required
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Please input your email!" },
+              { type: "email", message: "Invalid email format!" },
+            ]}
+          >
+            <Input
               maxLength={30}
-              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"
-              className="border border-black "
+              placeholder="example@example.com"
               onChange={(e) => setLogin({ ...login, email: e.target.value })}
             />
-          </label>
-          <label className="flex flex-col">
-            Password
-            <input
-              type="password"
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password
               maxLength={30}
-              required
-              className="border border-black"
+              placeholder="Enter your password"  
               onChange={(e) => setLogin({ ...login, password: e.target.value })}
             />
-          </label>
-          <button className="hover:bg-[#E4E4D0] hover:w-28 hover:rounded-2xl m-auto">
-            SUBMIT
-          </button>
-          <div className="flex justify-between w-full">
+          </Form.Item>
+
+
+          <Form.Item>
+            <Button
+              htmlType="submit"
+              block
+              type="default"
+              className="bg-[#E4E4D0] text-black hover:bg-[#94A684] transition duration-150"
+            >
+              Submit
+            </Button>
+          </Form.Item>
+
+          <div className="flex justify-between">
             <Link
               to="/forgout"
-              className="hover:bg-[#E4E4D0]  hover:rounded-2xl m-auto text-center w-[40%]"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(174,195,174)] transition duration-150"
             >
               Forgot
             </Link>
             <Link
               to="/register"
-              className="hover:bg-[#E4E4D0]  w-[40%] hover:rounded-2xl m-auto text-center"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(174,195,174)] transition duration-150"
             >
               Register
             </Link>
           </div>
 
-          {/* <button onClick={() => googleLogin()}>Login dengan Google</button> */}
-        </form>
+
+        </Form>
       </div>
-    );
-  }
+    </div>
+  );
 }

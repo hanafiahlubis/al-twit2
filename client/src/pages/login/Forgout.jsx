@@ -1,87 +1,118 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api2 } from "../../utils";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Rubric from "../../components/Rubric";
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Form, Input, Button, Modal } from "antd";  // Import Modal from antd
 
 export default function Forgout() {
   const [forgout, setForgout] = useState({});
   const [openPassword, setOpenPassword] = useState(false);
   const temp = useRef(0);
-  const naviget = useNavigate();
-  return (
-    <div className="flex-col sm:flex-row  flex items-center gap-4 h-screen justify-evenly w-full bg-[#AEC3AE]">
-      <Rubric />
-      <form
-        className="w-[80%] sm:w-[46%] lg:w-[34%] flex flex-col gap-6 bg-[#94A684] p-12 rounded-lg"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (temp.current === 1) {
-            api2("/login/forgout", "PUT", forgout).then(() => {
-              alert("Berhasil Mengubah Sandi");
-              setOpenPassword(!openPassword);
-              temp.current = 0;
-              setForgout({});
-              naviget("/login");
-            });
-          } else if (temp.current === 0) {
-            api2("/login/check", "POST", forgout).then(() => {
-              setOpenPassword(!openPassword);
-              temp.current++;
-            });
-          }
-        }}
-      >
-        <h3 className="text-3xl  text-center">Forgot</h3>
+  const navigate = useNavigate();
 
-        {!openPassword ? (
-          <label className="flex flex-col">
-            Email
-            <input
-              type="email"
-              required
-              autoFocus
-              className="border border-black"
-              value={forgout.email ?? ""}
-              onChange={(e) =>
-                setForgout({ ...forgout, email: e.target.value })
-              }
-            />
-          </label>
-        ) : (
-          <label className="flex flex-col">
-            NEW Password
-            <input
-              type="password"
-              autoFocus
-              required
-              className="border border-black"
-              value={forgout.password ?? ""}
-              onChange={(e) =>
-                setForgout({ ...forgout, password: e.target.value })
-              }
-            />
-          </label>
-        )}
-        <button className="hover:bg-[#E4E4D0] hover:w-28 hover:rounded-2xl m-auto">
-          SUBMIT
-        </button>
-        <div className="flex justify-between w-full">
-          <Link
-            to="/login"
-            className="hover:bg-[#E4E4D0]  hover:rounded-2xl m-auto text-center w-[40%]"
-          >
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="hover:bg-[#E4E4D0]  w-[40%] hover:rounded-2xl m-auto text-center"
-          >
-            Register
-          </Link>
-        </div>
-      </form>
+  const onFinish = async () => {
+    if (temp.current === 1) {
+      await api2("/login/forgout", "PUT", forgout);
+
+      // Pop-up success message using Modal
+      Modal.success({
+        title: "Success",
+        content: "Berhasil Mengubah Sandi",
+        okButtonProps: {
+          style: {
+            backgroundColor: "#94A684", // Color matching with 'Forgot' button
+            borderColor: "#94A684", // Matching border color
+            color: "#000", // White text
+          },
+        },
+        onOk() {
+          setOpenPassword(false);
+          temp.current = 0;
+          setForgout({});
+          navigate("/login");
+        },
+      });
+
+    } else {
+      await api2("/login/check", "POST", forgout);
+      setOpenPassword(true);
+      temp.current++;
+    }
+  };
+
+  return (
+    <div className="flex-col sm:flex-row flex items-center gap-4 h-screen justify-evenly w-full bg-[#AEC3AE]">
+      <Rubric />
+      <div className="w-[80%] sm:w-[46%] lg:w-[34%] bg-[#94A684] p-12 rounded-lg">
+        <h3 className="text-3xl text-center mb-6">Forgot</h3>
+        <Form
+          layout="vertical"
+          onFinish={onFinish}
+          className="space-y-4"
+          validateTrigger="onSubmit"
+        >
+          {!openPassword ? (
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[
+                { required: true, message: "Email is required" },
+                { type: "email", message: "Invalid email format" },
+              ]}
+            >
+              <Input
+                autoFocus
+                value={forgout.email ?? ""}
+                onChange={(e) =>
+                  setForgout({ ...forgout, email: e.target.value })
+                }
+                placeholder="Enter your email"
+              />
+            </Form.Item>
+          ) : (
+            <Form.Item
+              label="New Password"
+              name="password"
+              rules={[{ required: true, message: "Password is required" }]}
+            >
+              <Input.Password
+                autoFocus
+                value={forgout.password ?? ""}
+                onChange={(e) =>
+                  setForgout({ ...forgout, password: e.target.value })
+                }
+                placeholder="Enter your new password"
+              />
+            </Form.Item>
+          )}
+
+          <Form.Item>
+            <Button
+              htmlType="submit"
+              block
+              type="default"
+              className="bg-[#E4E4D0] text-black hover:bg-[#94A684] transition duration-150"
+            >
+              Submit
+            </Button>
+          </Form.Item>
+
+          <div className="flex justify-between">
+            <Link
+              to="/login"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(84_108_84)] transition duration-150"
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(84_108_84)] transition duration-150"
+            >
+              Register
+            </Link>
+          </div>
+        </Form>
+      </div>
     </div>
   );
 }

@@ -39,16 +39,36 @@ export const api = {
 //     // }
 // }
 export async function api2(endpoint, method = "GET", body) {
-    const response = await fetch(`http://localhost:3000/api${endpoint}`, {
-        method,
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body),
-    });
-    const data = await (method === "GET" ? response.json() : response.text());
-    return data;
+    try {
+        const response = await fetch(`http://localhost:3000/api${endpoint}`, {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: method === "GET" ? null : JSON.stringify(body),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            return {
+                status: errorData?.status || 500,
+                message: errorData?.message || "Terjadi kesalahan. Silakan coba lagi.",
+            };
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error in API call:", error);
+
+        return {
+            status: 500,
+            message: error.message || "Terjadi kesalahan. Silakan coba lagi.",
+        };
+    }
 }
+
+
 
 export function checkz(check, post, user) {
     const matchingCheck = check.find(

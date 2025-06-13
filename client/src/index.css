@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+:where(.css-dev-only-do-not-override-mc1tut).ant-form-item {
+  margin-bottom: 0;
+}
+
+:where(.css-dev-only-do-not-override-mc1tut).ant-form-vertical .ant-form-item:not(.ant-form-item-horizontal) .ant-form-item-label,
+:where(.css-dev-only-do-not-override-mc1tut).ant-form-vertical .ant-form-item:not(.ant-form-item-horizontal) .ant-col-24.ant-form-item-label,
+:where(.css-dev-only-do-not-override-mc1tut).ant-form-vertical .ant-form-item:not(.ant-form-item-horizontal) .ant-col-xl-24.ant-form-item-label {
+  padding: 0 0 0 0;
+}
+
+:where(.css-dev-only-do-not-override-mc1tut).ant-modal-root .ant-modal {
+  top: 1rem;
+}
+
+:where(.css-dev-only-do-not-override-mc1tut).ant-btn-variant-solid:not(:disabled):not(.ant-btn-disabled):hover {
+  background-color: #7a9c7a !important;
+  /* Darker green on hover */
+  border-color: #7a9c7a !important;
+  /* Darker border on hover */
+  color: #fff !important;
+  /* White text on hover */
+}
+
 * {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
