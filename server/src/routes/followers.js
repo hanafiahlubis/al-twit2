@@ -4,7 +4,6 @@ import client from "../connection.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-    console.log(req.body)
     try {
         await client.query("insert into follower values(default, $1,$2,now())", [req.body.me, req.body.to])
         res.send("Berhasil MemFollow");
@@ -17,7 +16,6 @@ router.post("/", async (req, res) => {
 });
 
 router.delete("/", async (req, res) => {
-    console.log(req.body)
     try {
         await client.query("delete from follower f where id_user  = $1 and id_user_to  = $2", [req.body.me, req.body.to]);
     } catch (error) {

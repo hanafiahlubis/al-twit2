@@ -4,7 +4,6 @@ import client from "../connection.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-    console.log(req.body)
     try {
         await client.query("insert into post_al  values(default, $1, $2, $3, now(),$4, $5, $6)", [req.body.id_user, req.body.content, req.body.media, req.body.id, req.body.isi, req.body.user])
         // await client.query("insert into post_al (id_retweet,isi ,id_user_retweet,time_now) values($1,$2,$3,now())", [req.body.retweet, req.body.isi, req.body.user_retweet])
@@ -29,7 +28,6 @@ router.get("/", async (req, res) => {
     }
 })
 router.post("/a", async (req, res) => {
-    console.log(req.body);
     try {
         await client.query("INSERT INTO post_al (id_retweet, content, id_user_retweet, time_now) VALUES ($1, $2, $3, now())", [req.body.retweet, req.body.isi, req.body.user_retweet]);
         res.send("Berhasil membuat retweet.");

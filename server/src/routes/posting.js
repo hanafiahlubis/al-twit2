@@ -9,65 +9,62 @@ const type = upload.single('file')
 const router = express.Router();
 
 router.post("/add", type, async (req, res) => {
-    console.log("aaaa")
-    console.log(req.body)
     await client.query("insert into post_al (id_user,content,media,time_now) values($1,$2,$3,$4)", [req.body.user, req.body.content, req.file.filename, new Date()])
     res.send("berhasil")
 });
 
 router.get("/", async (_req, res) => {
-    console.log("aaa");
     // const results = await client.query("SELECT p.id_user, p.id, a.full_name, a.email, p.content, p.media, p.time_now, id_user FROM akun a INNER JOIN post_al p ON a.id = p.id_user ORDER BY p.time_now DESC");
     const twit = (await client.query(` 
-    WITH RECURSIVE retweet_chain AS (
-        SELECT
-            id,
-            id_user,
-            content,
-            media,
-            time_now,
-            id_retweet,
-            isi,
-            id_user_retweet
-        FROM
-            post_al
-        UNION ALL
-        SELECT
-            pa.id,
-            pa.id_user,
-            pa.content,
-            pa.media,
-            pa.time_now,
-            pa.id_retweet,
-            pa.isi,
-            pa.id_user_retweet
-        FROM
-            retweet_chain rc
-        JOIN
-            post_al pa ON rc.id = pa.id_retweet
-    )
+ WITH RECURSIVE retweet_chain AS (
     SELECT
-        rc.id,
-        rc.id_user,
-        u.full_name ,
-        u.email ,
-        u.username ,
-        rc.content,
-        rc.media,
-        rc.time_now,
-        rc.id_retweet,
-        rc.isi,
-        a.id as user_redweet,
-        a.email as retweet_email,
-        COALESCE(a.username, '') AS retweeter_username,
-        COALESCE(a.full_name, '') AS retweeter_full_name
+        id,
+        id_user,
+        content,
+        media,
+        time_now,
+        id_retweet,
+        isi,
+        id_user_retweet
     FROM
-        retweet_chain rc 
-        inner join akun u on u.id = rc.id_user 
-    LEFT JOIN
-        akun a ON rc.id_user_retweet = a.id
-    ORDER BY
-        rc.time_now DESC`)).rows;
+        post_al
+    UNION ALL
+    SELECT
+        pa.id,
+        pa.id_user,
+        pa.content,
+        pa.media,
+        pa.time_now,
+        pa.id_retweet,
+        pa.isi,
+        pa.id_user_retweet
+    FROM
+        retweet_chain rc
+    JOIN
+        post_al pa ON rc.id = pa.id_retweet
+)
+SELECT DISTINCT
+    rc.id,
+    rc.id_user,
+    u.full_name,
+    u.email,
+    u.username,
+    rc.content,
+    rc.media,
+    rc.time_now,
+    rc.id_retweet,
+    rc.isi,
+    a.id as user_redweet,
+    a.email as retweet_email,
+    COALESCE(a.username, '') AS retweeter_username,
+    COALESCE(a.full_name, '') AS retweeter_full_name
+FROM
+    retweet_chain rc
+    INNER JOIN akun u ON u.id = rc.id_user
+    LEFT JOIN akun a ON rc.id_user_retweet = a.id
+ORDER BY
+    rc.time_now DESC;
+`)).rows;
 
     const follower = (await client.query(`select * from follower`)).rows;
 
@@ -93,7 +90,6 @@ router.get("/", async (_req, res) => {
 })
 
 router.get("/:id", async (req, res) => {
-    console.log("aa")
     const results = (await client.query(`        WITH RECURSIVE retweet_chain AS (
         SELECT
             id,
@@ -151,7 +147,7 @@ router.get("/:id", async (req, res) => {
         mediaUrl: `http://localhost:3000/${post.media}`
     }));
     const like = (await client.query(`SELECT pa.id AS id_post, COUNT(*) AS banyak FROM suka s JOIN post_al pa ON s.id_post = pa.id WHERE s.chek = true AND (pa.id_user = $1 OR pa.id_user_retweet = $2) GROUP BY pa.id`, [req.params.id, req.params.id])).rows;
-    console.log(like)
+   
     const follower = (await client.query(`select * from follower`)).rows;
     const comentar = (await client.query("select id_pos,count(*) as banyak  from commentar group by id_pos")).rows
     const check = (await client.query("select  * from suka where chek = true")).rows;
@@ -225,7 +221,7 @@ router.get("/by/:id", async (req, res) => {
         mediaUrl: `http://localhost:3000/${post.media}`
     }));
     const like = (await client.query("select id_post,count(*) as banyak  from suka where  chek  = true and id_post  in(select id from  post_al pa where id  = $1  )  group by id_post", [req.params.id])).rows;
-    console.log(like)
+    
     const comentar = (await client.query("select id_pos,count(*) as banyak  from commentar group by id_pos")).rows;
     const contentComentar = (await client.query("select a.id,a.email,a.full_name ,c.* from commentar c inner join akun a on a.id = c.id_user and c.id_pos = $1", [req.params.id])).rows;
     const check = (await client.query("select  * from suka where chek = true")).rows;
@@ -240,7 +236,6 @@ router.get("/by/:id", async (req, res) => {
     })
 });
 router.get("/:me/:id", async (req, res) => {
-    console.log("aaaaaaaaaaa")
     let results;
     if (req.params.me === req.params.id) {
         results = (await client.query(`SELECT
@@ -327,7 +322,6 @@ router.get("/:me/:id", async (req, res) => {
 
 })
 router.delete("/:id", async (req, res) => {
-    console.log("masuk")
     try {
         await client.query(`WITH RECURSIVE retweet_chain AS (
             SELECT id, id_retweet
@@ -353,7 +347,6 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-    console.log("masuk")
     try {
         await client.query(`WITH RECURSIVE retweet_chain AS (
             SELECT id, id_retweet
