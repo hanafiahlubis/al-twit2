@@ -59,87 +59,8 @@ export default function Post() {
     return (
       <>
         <Header />
-
-        {/* <main className="flex overflow-y-auto w-full p-8 gap-4 flex-col">
-          {postings.map((posting) => (
-            <button
-              // to={`/profil/${posting.id_user}`}
-              key={posting.id}
-              className="flex  w-full p-8 gap-4 flex-col "
-            >
-              <span className="flex items-center w-full gap-2 ">
-                <h3 className="text-2xl font-bold">{posting.full_name}</h3>
-                <p className="text-sm ">{posting.email}</p>
-              </span>
-              <p className="text-justify">{posting.content}</p>
-              <img
-                className="m-auto"
-                src={`${posting.mediaUrl}`}
-                alt="Posting Error"
-              />
-              <hr className="border border-black" />
-              <div className="flex justify-evenly items-center w-full">
-                <button
-                  disabled={!off}
-                  className="flex items-center w-[3.5rem] justify-around "
-                  onClick={() => {
-                    console.log(posting.id);
-                    setOff((prevOff) => !prevOff);
-                    temp.current = { ...like, post: posting.id };
-                    setLike(temp.current);
-                    const kodinsi = checks.find(
-                      (c) => c.id_post === posting.id && c.id_user === user.id
-                    );
-                    if (kodinsi) {
-                      api.delete(`/like/${user.id}/${posting.id}`);
-                    } else {
-                      console.log(temp.current);
-                      api.post("/like", temp.current);
-                    }
-                    api.get("/like/check").then((e) => {
-                      setChecks(e);
-                    });
-                    api.get("/like").then((e) => {
-                      setCount(e);
-                    });
-                    setOff((prevOff) => !prevOff);
-                  }}
-                >
-                  <AiFillLike
-                    size={20}
-                    className={`${
-                      checkz(checks, posting.id, user.id) ? "text-red-600 " : ""
-                    } w-8`}
-                  />
-                  {count.map((e, index) =>
-                    e.id_post === posting.id && e.banyak !== 0 ? (
-                      <span key={index}>{e.banyak}</span>
-                    ) : null
-                  )}
-                </button>
-                <FiShare2 />
-                <button
-                  className="flex items-center w-8 justify-between"
-                  onClick={() => {
-                    setOpenComentar(!openComentar);
-                  }}
-                >
-                  <TfiCommentsSmiley />
-                  {countComentar.map((e, index) =>
-                    e.id_pos === posting.id && e.banyak !== 0 ? (
-                      <span key={index}>{e.banyak}</span>
-                    ) : (
-                      ""
-                    )
-                  )}
-                </button>
-              </div>
-             
-            </button>
-          ))}
-        </main> */}
         <Postingan />
-        <div className="w-full">
+        <div className="w-full  hidden">
           {countentComentar.map((e, i) => (
             <div key={i}>
               <span className="flex justify-between">

@@ -9,18 +9,20 @@ export default function RekomendasiFollower() {
   const user = useOutletContext()[0];
 
   return (
-    <div className="h-screen flex  items-center w-[30%] sticky top-0">
+    <div className="h-screen flex items-center justify-center sticky top-0 p-6">
       {allFollower.length > 0 && (
-
-        <div className="flex flex-col p-1 rounded-lg border-black border-[1px]">
-          <h1 className="text-center font-bold border-black border-b-2">
+        <div className="bg-green-50 rounded-lg shadow-lg border border-gray-200 w-full max-w-md p-6">
+          <h1 className="text-center font-bold text-xl text-gray-800 mb-4">
             Rekomendasi Following
           </h1>
 
-          <div className="h-max  w-full flex flex-col gap-5 ">
+          <div className="space-y-5">
             {allFollower?.map((follower, i) => (
-              <span key={i} className="flex justify-between">
-                <h3>{follower.full_name} </h3>
+              <div
+                key={i}
+                className="flex justify-between items-center bg-white p-4 rounded-md shadow-sm hover:bg-gray-50 transition"
+              >
+                <h3 className="font-medium text-gray-700">{follower.full_name}</h3>
                 <button
                   onClick={async () => {
                     await api.post("/follower", {
@@ -32,21 +34,18 @@ export default function RekomendasiFollower() {
                       setAllFollower(
                         allFollower.filter((f) => f.id !== follower.id)
                       );
-                      console.log(allFollower);
-
                       setFollower({});
                     });
-                    // api.post("/follower", follower);
                   }}
+                  className="bg-teal-500 text-white px-5 py-2 rounded-md hover:bg-teal-600 transition"
                 >
                   Follow
                 </button>
-              </span>
+              </div>
             ))}
           </div>
         </div>
       )}
-
     </div>
   );
 }

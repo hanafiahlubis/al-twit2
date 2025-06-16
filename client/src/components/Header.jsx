@@ -8,6 +8,9 @@ import { AllStateContext, DataContext } from "../App";
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import RetweetModal from "../components/RetweetModal"; // Import the RetweetModal
+import CommentModal from "./CommentModal.jsx";
+import PostModal from "./PostModal.jsx";
+import { Modal } from "antd"; // Import Ant Design's Modal for confirmation
 
 export default function Header() {
   const setUser = useOutletContext()[1];
@@ -18,83 +21,69 @@ export default function Header() {
     dataComentar,
     setDataComentar,
     setCountComentar,
-    openRetweet,
-    setOpenRetweet,
-    dataRetweet,
-    setDataRetweet,
   } = useContext(AllStateContext);
 
   const [openMenu, setOpenMenu] = useState(false);
   const [openAdd, setOpenAdd] = useState(true);
   const [addPos, setAddPost] = useState({});
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false); // State to control logout confirmation modal
   const user = useOutletContext()[0];
 
-  const handleRetweetSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post("/retweed", dataRetweet);
-      const updatedPostings = await api.get("/posting");
-      setPostings(updatedPostings.data);
-      setDataRetweet({});
-      setOpenRetweet(false);
-    } catch (error) {
-      console.error("Error in retweeting:", error);
-    }
-  };
-
   const handleCommentSubmit = async (e) => {
-    e.preventDefault();
     try {
+
       await api.post("/comentar", dataComentar);
       setCountComentar(await api.get("/comentar"));
-      setDataComentar({});
+      setDataComentar(prevState => {
+        const updatedState = { ...prevState, commentar: "" };
+        return updatedState;
+      });
       setOpenComentar(false);
+
+
     } catch (error) {
       console.error("Error in commenting:", error);
     }
   };
 
-  const handleLogout = async () => {
-    const check = confirm(`Apakah Anda Yakin ingin Keluar ${user.full_name}?`);
-    if (check) {
-      const response = await api.post("/login/logout");
-      console.log("Berhasil Me Navigate");
-      alert(response);
-      setUser();
-    }
+  const handlePostSubmit = async (e) => {
+    e.preventDefault();
+    const data = new FormData();
+    data.append("file", addPos.media);
+    data.append("content", addPos.content);
+    data.append("user", user.id);
+    const token = localStorage.getItem("token");
+    await fetch(`http://localhost:3000/api/posting/add`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: data,
+    });
+    api.get("/posting").then((data) => {
+      setPostings(data.data);
+    });
+    setOpenAdd(!openAdd);
+  };
+
+  const handleLogout = () => {
+    // Show the logout confirmation modal
+    setLogoutModalVisible(true);
+  };
+
+  const confirmLogout = async () => {
+    const response = await api.post("/login/logout");
+    console.log("Logout successful:", response);
+    setUser(); // Clear user state on logout
+    setLogoutModalVisible(false); // Close the logout confirmation modal
+  };
+
+  const cancelLogout = () => {
+    setLogoutModalVisible(false); // Close the modal if the user cancels the action
   };
 
   return user ? (
     <>
-      {openComentar && (
-        <div className="block w-screen sm:w-full fixed h-screen left-0 top-0 z-50 overflow-y-hidden">
-          <form
-            className="absolute bg-white flex flex-col gap-4 p-8 rounded-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-[512px] shadow-xl shadow-black"
-            onSubmit={handleCommentSubmit}
-          >
-            <span className="flex items-center w-full gap-2 ">
-              <h3 className="text-2xl font-bold">{dataComentar.name}</h3>
-              <p className="text-sm">{dataComentar.email}</p>
-            </span>
-            <h3>{dataComentar.content}</h3>
-            <textarea
-              cols="25"
-              rows="7"
-              autoFocus
-              required
-              placeholder="Post Your Reply"
-              className="resize-none focus:outline-none outline-double"
-              maxLength={153}
-              onChange={(e) => setDataComentar({ ...dataComentar, commentar: e.target.value })}
-            ></textarea>
-            <button>SUBMIT</button>
-            <button type="button" onClick={() => setOpenComentar(false)}>
-              Cancel
-            </button>
-          </form>
-        </div>
-      )}
-
       {openMenu && (
         <nav className="flex md:hidden gap-8 flex-col text-center fixed top-[14px] p-6 left-1 rounded-md bg-cyan-700">
           <button className="absolute top-1 right-[10px] text-white" onClick={() => setOpenMenu(false)}>
@@ -108,56 +97,7 @@ export default function Header() {
         </nav>
       )}
 
-      {!openAdd && (
-        <div className="block w-screen sm:w-full fixed h-screen left-0 top-0 z-50 overflow-y-hidden">
-          <form
-            className="absolute bg-white flex flex-col gap-4 p-8 rounded-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 min-[512px] shadow-xl shadow-black"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const data = new FormData();
-              data.append("file", addPos.media);
-              data.append("content", addPos.content);
-              data.append("user", user.id);
-              const token = localStorage.getItem("token");
-              await fetch(`http://localhost:3000/api/posting/add`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-                body: data,
-              });
-              api.get("/posting").then((data) => {
-                setPostings(data.data);
-              });
-              setOpenAdd(!openAdd);
-            }}
-          >
-            <h3>Posting</h3>
-            <label>
-              Content
-              <input
-                type="text"
-                onChange={(e) => setAddPost({ ...addPos, content: e.target.value })}
-              />
-            </label>
-            <label>
-              Media
-              <input
-                type="file"
-                onChange={(e) => setAddPost({ ...addPos, media: e.target.files[0] })}
-              />
-            </label>
-            <div>
-              <button>SUBMIT</button>
-              <button type="button" onClick={() => setOpenAdd(!openAdd)}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <header className="md:border-r-2 p-3 border-black sticky w-full md:w-1/5 bg-gray-500 text-white flex md:h-screen flex-col justify-evenly">
+      <header className="md:border-r-2 p-3 border-[#E4E4D0] sticky w-full md:w-1/5 bg-[#AEC3AE] text-white flex md:h-screen flex-col justify-evenly">
         <div className="w-full h-screen flex-col justify-evenly hidden md:flex">
           <h1 className="text-center text-3xl">Al-Twit</h1>
           <nav className="flex gap-8 flex-col text-center">
@@ -190,8 +130,40 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Here we render the RetweetModal */}
+      {/* Render modals */}
       <RetweetModal />
+
+      <CommentModal
+        visible={openComentar}
+        onCancel={() => setOpenComentar(false)}
+        onSubmit={handleCommentSubmit}
+      />
+      <PostModal
+        visible={openAdd}
+        onCancel={() => setOpenAdd(!false)}
+        onSubmit={handlePostSubmit}
+      />
+
+      {/* Logout Confirmation Modal without animation */}
+      <Modal
+        title="Logout Confirmation"
+        visible={logoutModalVisible}
+        onOk={confirmLogout}
+        onCancel={cancelLogout}
+        okText="Yes, Logout"
+        cancelText="Cancel"
+        centered
+        transitionName="" // Disable animation
+        style={{
+          borderRadius: "8px",
+          position: "fixed",
+          top: "10%",
+          left: "50%",
+          transform: "translateX(-50%)", // Center horizontally
+        }}
+      >
+        <p>Are you sure you want to log out?</p>
+      </Modal>
     </>
   ) : (
     <Navigate to="/login" />

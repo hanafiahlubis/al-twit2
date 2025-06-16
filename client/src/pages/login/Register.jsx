@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api2 } from "../../utils";
 import { useState } from "react";
 import Rubric from "../../components/Rubric";
-import { Form, Input, Button,Modal } from "antd";
+import { Form, Input, Button, Modal } from "antd";
 
 export default function Register() {
   const [register, setRegister] = useState({});
@@ -18,7 +18,7 @@ export default function Register() {
       navigate("/login");
     } else if (response.status == 401) {
       setEmailError(response.message || "Email sudah terdaftar!");
-    }else {
+    } else {
       Modal.error({
         title: "Error",
         content: response.message || "Terjadi kesalahan. Silakan coba lagi.",
@@ -42,13 +42,20 @@ export default function Register() {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, message: "Email is required" }, { type: "email", message: "Invalid email format" }]}
-            help={emailError ? emailError : null} // Show error message under the input
-            validateStatus={emailError ? "error" : ""}
+            rules={[
+              { required: true, message: "Email is required" },
+              { type: "email", message: "Invalid email format" },
+            ]}
+            /* tampilkan error backend saja, biarkan error bawaan AntD bekerja */
+            validateStatus={emailError ? "error" : undefined}
+            help={emailError || undefined}
           >
             <Input
               value={register.email ?? ""}
-              onChange={(e) => setRegister({ ...register, email: e.target.value })}
+              onChange={(e) => {
+                setEmailError(null);                 // hapus pesan backend kalau user ubah input
+                setRegister({ ...register, email: e.target.value });
+              }}
             />
           </Form.Item>
 
@@ -78,14 +85,13 @@ export default function Register() {
             label="Username"
             name="username"
             rules={[{ required: true, message: "Username is required" }]}
-            validateStatus={register.username === "" ? "error" : ""}
-            help={register.username === "" ? "Username is required" : ""}
           >
             <Input
               value={register.username ?? ""}
               onChange={(e) => setRegister({ ...register, username: e.target.value })}
             />
           </Form.Item>
+
 
           <Form.Item>
             <Button
