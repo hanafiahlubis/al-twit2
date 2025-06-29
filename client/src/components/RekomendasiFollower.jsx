@@ -37,7 +37,7 @@ export default function RekomendasiFollower() {
                       setFollower({});
                     });
                   }}
-                  className="bg-teal-500 text-white px-5 py-2 rounded-md hover:bg-teal-600 transition"
+                  className="bg-[#52c41a] text-white px-5 py-2 rounded-md hover:bg-teal-600 transition"
                 >
                   Follow
                 </button>

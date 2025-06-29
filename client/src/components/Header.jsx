@@ -157,13 +157,32 @@ export default function Header() {
         style={{
           borderRadius: "8px",
           position: "fixed",
-          top: "10%",
+          top: "0",
           left: "50%",
-          transform: "translateX(-50%)", // Center horizontally
+          transform: "translateX(-50%)"
+        }}
+        okButtonProps={{
+          style: {
+            backgroundColor: "#52c41a", borderRadius: "8px",
+
+            padding: "6px 16px",
+            fontSize: "14px",
+
+          }
+        }}
+        cancelButtonProps={{
+          style: {
+            borderRadius: "8px",
+            borderColor: "#d9d9d9",
+            color: "#fff",
+            padding: "6px 16px",
+            fontSize: "14px",
+            backgroundColor: "#f44336"
+          }
         }}
       >
         <p>Are you sure you want to log out?</p>
-      </Modal>
+      </Modal >
     </>
   ) : (
     <Navigate to="/login" />

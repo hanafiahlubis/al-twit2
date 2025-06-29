@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
 :where(.css-dev-only-do-not-override-mc1tut).ant-form-item {
   margin-bottom: 0;
 }
@@ -25,15 +29,13 @@
   /* White text on hover */
 }
 
-:where(.css-dev-only-do-not-override-mc1tut).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):hover, 
+:where(.css-dev-only-do-not-override-mc1tut).ant-btn-variant-outlined:not(:disabled):not(.ant-btn-disabled):hover,
 :where(.css-dev-only-do-not-override-mc1tut).ant-btn-variant-dashed:not(:disabled):not(.ant-btn-disabled):hover {
-  color: #fff; /* Text color on hover */
-  border-color: #7a9c7a !important ;
-  background-color: #7a9c7a; /* Background color on hover */
-}
-
-* {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color: #fff;
+  /* Text color on hover */
+  border-color: #7a9c7a !important;
+  background-color: #7a9c7a;
+  /* Background color on hover */
 }
 
 .warna {

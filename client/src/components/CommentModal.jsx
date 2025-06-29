@@ -93,9 +93,10 @@ const CommentModal = ({ visible, onCancel, onSubmit }) => {
             style={{
               borderRadius: "8px",
               borderColor: "#d9d9d9",
-              color: "#ff4d4f", // Red color for Cancel button
+              color: "#fff", // Red color for Cancel button
               padding: "6px 16px",
               fontSize: "14px",
+              backgroundColor:"#f44336"
             }}
           >
             Cancel

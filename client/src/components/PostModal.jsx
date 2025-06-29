@@ -96,9 +96,10 @@ const PostModal = ({ visible, onCancel, onSubmit }) => {
             style={{
               borderRadius: "8px",
               borderColor: "#d9d9d9",
-              color: "#ff4d4f", // Red color for Cancel button
+              color: "#fff",
               padding: "6px 16px",
               fontSize: "14px",
+              backgroundColor: "#f44336"
             }}
           >
             Cancel

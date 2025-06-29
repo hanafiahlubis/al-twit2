@@ -41,7 +41,7 @@ export default function RetweetModal() {
                 <Button key="cancel" onClick={handleCancel} style={{ width: "100px", backgroundColor: "#f44336", color: "white" }}>
                     Cancel
                 </Button>,
-                <Button key="submit" type="primary" onClick={handleRetweetSubmit} style={{ width: "100px",  }} className="bg-teal-500">
+                <Button key="submit" type="primary" onClick={handleRetweetSubmit} style={{ width: "100px",  }} className="bg-[#52c41a]">
                     Retweet
                 </Button>,
             ]}
