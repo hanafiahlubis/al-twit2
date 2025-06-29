@@ -247,7 +247,7 @@ export default function Postingan() {
                   >
                     <AiFillLike
                       size={20}
-                      className={`${checkz(checks, posting.id, user?.id) ? "text-red-600 " : "text-black "
+                      className={`${checkz(checks, posting.id, user?.id) ? "text-[#53c71a] " : "text-black "
                         } w-8`}
                     />
                     {count.map((e, index) =>

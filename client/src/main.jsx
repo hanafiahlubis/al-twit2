@@ -40,7 +40,11 @@ export const pages = [
         element: <Profil />,
         title: "PROFIL",
       },
-      { path: "/post/:id", element: <Post />, title: "POST" },
+      {
+        path: "/post/:id",
+        element: <Post />, 
+        title: "POST"
+      },
     ],
   },
 ];

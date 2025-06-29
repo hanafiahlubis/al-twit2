@@ -38,7 +38,7 @@ export default function Profil() {
       <>
         <Header />
 
-        <main className="flex overflow-y-auto w-full p-8 gap-4 flex-col w-[80%]">
+        <main className="flex overflow-y-auto p-8 gap-4 flex-col w-[80%]">
           <div className="flex flex-col gap-2 h-max">
             <span>
               <h1 className="text-lg font-bold">{data?.bio?.full_name}</h1>
@@ -50,10 +50,10 @@ export default function Profil() {
             </span>
             <div className="flex gap-8">
               <h1>
-                <span className="font-bold">{data?.following}</span> Following
+                <span className="font-bold">{data?.following || 0}</span> Following
               </h1>
               <h1>
-                <span className="font-bold">{data?.followers}</span> followers
+                <span className="font-bold">{data?.followers || 0}</span> followers
               </h1>
             </div>
           </div>

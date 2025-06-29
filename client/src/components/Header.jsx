@@ -84,6 +84,44 @@ export default function Header() {
 
   return user ? (
     <>
+      <header className="md:border-r-2 p-3 border-[#E4E4D0] sticky w-full md:w-1/5 bg-[#AEC3AE] text-white flex md:h-screen flex-col justify-evenly">
+        <div className="w-full h-screen flex-col justify-evenly hidden md:flex">
+          <h1 className="text-center text-3xl">Al-Twit</h1>
+          <nav className="flex gap-8 flex-col text-center">
+            {pages[3].children.map((page, i) => {
+              if (page.title === "POST") {
+                return;
+              } else {
+                return (
+                  <NavLink key={i} to={page.title === "PROFIL" ? `/profil/${user.id}` : page.path}
+                    style={({ isActive }) =>
+                      isActive
+                        ? {
+                          backgroundColor: "#E4E4D0",
+                          borderRadius: "8px",
+                          padding: "6px 16px",
+                          fontSize: "14px",
+                          color: "#000"
+                        } : {}
+                    }
+                  >
+                    {page.title}
+                  </NavLink>
+                );
+              }
+            })}
+          </nav>
+          <button onClick={() => setOpenAdd(!openAdd)}>Post Now</button>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+        <div className="flex justify-center items-center md:hidden ">
+          <h1 className="text-center text-3xl">Al-Twit</h1>
+          <button className="absolute left-3" onClick={() => setOpenMenu(!openMenu)}>
+            <AiOutlineMenuUnfold />
+          </button>
+        </div>
+      </header>
+
       {openMenu && (
         <nav className="flex md:hidden gap-8 flex-col text-center fixed top-[14px] p-6 left-1 rounded-md bg-cyan-700">
           <button className="absolute top-1 right-[10px] text-white" onClick={() => setOpenMenu(false)}>
@@ -97,40 +135,7 @@ export default function Header() {
         </nav>
       )}
 
-      <header className="md:border-r-2 p-3 border-[#E4E4D0] sticky w-full md:w-1/5 bg-[#AEC3AE] text-white flex md:h-screen flex-col justify-evenly">
-        <div className="w-full h-screen flex-col justify-evenly hidden md:flex">
-          <h1 className="text-center text-3xl">Al-Twit</h1>
-          <nav className="flex gap-8 flex-col text-center">
-            {pages[3].children.map((page, i) => {
-              if (page.title === "PROFIL") {
-                return (
-                  <NavLink key={i} to={`/profil/${user.id}`}>
-                    {page.title}
-                  </NavLink>
-                );
-              } else if (page.title === "POST") {
-                return;
-              } else {
-                return (
-                  <NavLink key={i} to={page.path}>
-                    {page.title}
-                  </NavLink>
-                );
-              }
-            })}
-          </nav>
-          <button onClick={() => setOpenAdd(!openAdd)}>POST</button>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-        <div className="flex justify-center items-center md:hidden ">
-          <h1 className="text-center text-3xl">Al-Twit</h1>
-          <button className="absolute left-3" onClick={() => setOpenMenu(!openMenu)}>
-            <AiOutlineMenuUnfold />
-          </button>
-        </div>
-      </header>
 
-      {/* Render modals */}
       <RetweetModal />
 
       <CommentModal
@@ -157,7 +162,7 @@ export default function Header() {
         style={{
           borderRadius: "8px",
           position: "fixed",
-          top: "0",
+          top: "1%",
           left: "50%",
           transform: "translateX(-50%)"
         }}
