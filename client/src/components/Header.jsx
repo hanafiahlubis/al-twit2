@@ -46,19 +46,19 @@ export default function Header() {
     }
   };
 
-  const handlePostSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData();
-    data.append("file", addPos.media);
-    data.append("content", addPos.content);
-    data.append("user", user.id);
+  const handlePostSubmit = async (formDataFromModal) => {
+    console.log(user.id);
+    
+    formDataFromModal.append("user", user.id);
     const token = localStorage.getItem("token");
-    await fetch(`http://localhost:3000/api/posting/add`, {
+
+    const API_URL = import.meta.env.VITE_API_URL;
+    await fetch(`${API_URL}/api/posting/add`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: data,
+      body: formDataFromModal,
     });
     api.get("/posting").then((data) => {
       setPostings(data.data);

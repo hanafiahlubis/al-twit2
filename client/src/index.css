@@ -41,3 +41,16 @@
 .warna {
   text-shadow: 0 0 8px rgba(255, 255, 255);
 }
+
+/* sembunyikan scrollbar – cross-browser */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  /* IE & Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}

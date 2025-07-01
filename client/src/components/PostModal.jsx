@@ -8,11 +8,20 @@ const PostModal = ({ visible, onCancel, onSubmit }) => {
   const [content, setContent] = useState("");
 
   const handleMediaChange = (info) => {
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} file uploaded successfully`);
-      setMedia(info.file.originFileObj);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
+    const fileObj = info?.file?.originFileObj || info?.fileList?.[0]?.originFileObj;
+    console.log(info);
+
+    console.log("DEBUG:", {
+      file: info.file,
+      fileList: info.fileList,
+      origin: fileObj,
+    });
+
+    if (fileObj) {
+      setMedia(fileObj);
+      message.success(`${fileObj.name} siap diupload.`);
+    } else {
+      message.error("Gagal membaca file.");
     }
   };
 
@@ -35,6 +44,7 @@ const PostModal = ({ visible, onCancel, onSubmit }) => {
   return (
     <Modal
       visible={!visible}
+      // open={visible}
       title="Create a New Post"
       onCancel={onCancel}
       footer={null}

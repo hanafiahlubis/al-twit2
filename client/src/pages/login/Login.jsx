@@ -1,7 +1,6 @@
 import { useNavigate, useOutletContext, Link, Navigate } from "react-router-dom";
 import Rubric from "../../components/Rubric";
 import { useState } from "react";
-import { Button, Form, Input } from "antd";
 import { api } from "../../utils.js";
 
 export default function Login() {
@@ -10,9 +9,10 @@ export default function Login() {
   const [user, setUser] = useOutletContext();
 
   if (user) return <Navigate to="/" />;
-
-  const onFinish = async () => {
-    const response = await fetch(`http://localhost:3000/api/login`, {
+  const API_URL = import.meta.env.VITE_API_URL;
+  const onFinish = async (e) => {
+    e.preventDefault();
+    const response = await fetch(`${API_URL}/api/login`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -35,68 +35,62 @@ export default function Login() {
       <Rubric />
       <div className="w-[80%] sm:w-[46%] lg:w-[34%] bg-[#94A684] p-12 rounded-lg">
         <h3 className="text-3xl text-center mb-6">Login</h3>
-        <Form
-          layout="vertical"
-          onFinish={onFinish}
-          validateTrigger="onSubmit"
+        <form
+          onSubmit={onFinish}
           className="space-y-4"
         >
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Please input your email!" },
-              { type: "email", message: "Invalid email format!" },
-            ]}
-          >
-            <Input
+          <div>
+            <label className="block text-white mb-2" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
               maxLength={30}
               placeholder="example@example.com"
               onChange={(e) => setLogin({ ...login, email: e.target.value })}
+              className="w-full p-2 rounded-md border border-gray-300"
             />
-          </Form.Item>
+          </div>
 
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
-          >
-            <Input.Password
+          <div>
+            <label className="block text-white mb-2" htmlFor="password">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
               maxLength={30}
-              placeholder="Enter your password"  
+              placeholder="Enter your password"
               onChange={(e) => setLogin({ ...login, password: e.target.value })}
+              className="w-full p-2 rounded-md border border-gray-300"
             />
-          </Form.Item>
+          </div>
 
-
-          <Form.Item>
-            <Button
-              htmlType="submit"
-              block
-              type="default"
-              className="bg-[#E4E4D0] text-black hover:bg-[#94A684] transition duration-150"
+          <div>
+            <button
+              type="submit"
+              className="w-full bg-[#E4E4D0] text-black hover:bg-[#94A684] hover:shadow-lg transition-all duration-150 py-2 rounded-md"
             >
               Submit
-            </Button>
-          </Form.Item>
+            </button>
+          </div>
 
           <div className="flex justify-between">
             <Link
               to="/forgout"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(174,195,174)] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
             >
               Forgot
             </Link>
             <Link
               to="/register"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(174,195,174)] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
             >
               Register
             </Link>
           </div>
-
-
-        </Form>
+        </form>
       </div>
     </div>
   );

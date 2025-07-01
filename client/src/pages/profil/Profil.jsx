@@ -5,6 +5,7 @@ import { AllStateContext, DataContext } from "../../App";
 import Postingan from "../../components/Postingan.jsx";
 import Header from "../../components/Header";
 import { api } from "../../utils.js";
+import Loader from "../../components/Loader.jsx";
 
 export default function Profil() {
   const id = useParams("id");
@@ -12,14 +13,17 @@ export default function Profil() {
   const user = useOutletContext()[0];
   const [openPost, setOpenPost] = useState(true);
   const [openLike, setOpenLike] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { postings, setPostings } = useContext(DataContext);
+
   const {
     setCountComentar,
     setDataFollower,
     setChecks,
     setCount,
   } = useContext(AllStateContext);
+
   useEffect(() => {
     api.get(`/profil/${id.id}`).then((res) => {
       setData(res);
@@ -57,47 +61,85 @@ export default function Profil() {
               </h1>
             </div>
           </div>
-          <div className="flex w-full justify-around">
+
+          <div className="flex justify-center gap-8 border-b-green-600">
             <button
-              className={`${openPost ? "bg-slate-200" : ""}`}
+              className={`pb-2 px-4 text-sm font-medium transition
+                ${openPost ? "border-b-2 border-green-600 text-green-600"
+                  : "text-gray-500 hover:text-green-600/80"}`}
               onClick={async () => {
-                setOpenPost(!openPost);
+                if (openPost) return;
+                setOpenPost(true);
                 setOpenLike(false);
-                const data = await api.get(`/posting/${id.id}`);
-                setPostings(data.data);
-                setCountComentar(data.comentar);
-                setCount(data.like);
-                setChecks(data.check);
+                setLoading(true);
+
+                try {
+                  const res = await api.get(`/posting/${id.id}`);
+                  setPostings(res.data);
+                  setCountComentar(res.comentar);
+                  setCount(res.like);
+                  setChecks(res.check);
+                } finally {
+                  setLoading(false);
+                }
               }}
             >
               Posts
             </button>
+
             <button
-              className={`${openLike ? "bg-slate-200 " : ""}`}
+              className={`pb-2 px-4 text-sm font-medium transition
+                ${openLike ? "border-b-2 border-green-600 text-green-600"
+                  : "text-gray-500 hover:text-green-600/80"}`}
               onClick={async () => {
-                const data = await api.get(`/posting/${user.id}/${id.id}`);
-                setPostings(data.data);
-                setCountComentar(data.comentar);
-                setCount(data.like);
-                setChecks(data.check);
-                setDataFollower(data.follower);
-                setOpenLike(!openLike);
+                if (openLike) return;
+                setOpenLike(true);
                 setOpenPost(false);
+                setLoading(true);
+                try {
+                  const data = await api.get(`/posting/${user.id}/${id.id}`);
+                  const dataLike = await api.get("/like");
+                  
+                  setPostings(data.data);
+                  setCountComentar(data.comentar);
+                  setCount(dataLike);
+                  setChecks(data.check);
+                  setDataFollower(data.follower);
+
+                } finally {
+                  setLoading(false);
+                }
               }}
             >
               Likes
             </button>
           </div>
 
-          {openPost && postings.length > 0 ? (
-            <Postingan />
-          ) : (
-            <h1>{openPost && "xxxx"}</h1>
+
+          {openPost && (
+            loading ? (
+              <Loader />
+            ) : postings.length ? (
+              <Postingan />
+            ) : (
+              <p className="text-center text-sm text-gray-500 mt-8">
+                No posts yet.
+              </p>
+            )
           )}
 
-          {
-            openLike && <Postingan />
-          }
+          {openLike && (
+            loading ? (
+              <Loader />
+            ) : postings.length ? (
+              <Postingan />
+            ) : (
+              <p className="text-center text-sm text-gray-500 mt-8">
+                No liked posts yet.
+              </p>
+            )
+          )}
+
         </main>
       </>
     );

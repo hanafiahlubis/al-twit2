@@ -22,26 +22,9 @@ export const api = {
     post2: (endpoint, body, header) => send(endpoint, "POST", body, header),
 };
 
-
-// export async function api(endpoint, method = "GET", body, header = "application/json") {
-//     // const token = localStorage.getItem("token");
-//     // alert(endpoint)
-//     // if (token) {
-//     const response = await fetch(`http://localhost:3000/api${endpoint}`, {
-//         method,
-//         credentials: "include",
-//         headers: {
-//             "Content-Type": header
-//         },
-//         body: JSON.stringify(body),
-//     });
-//     const data = await (method === "GET" ? response.json() : response.text());
-//     return data;
-//     // }
-// }
 export async function api2(endpoint, method = "GET", body) {
     try {
-        const response = await fetch(`http://localhost:3000/api${endpoint}`, {
+        const response = await fetch(`${apiUrl}/api${endpoint}`, {
             method,
             headers: {
                 "Content-Type": "application/json",

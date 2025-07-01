@@ -1,12 +1,11 @@
 import { useOutletContext } from "react-router-dom";
 import { AllStateContext, DataContext } from "../App";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRef } from "react";
 import { AiFillLike } from "react-icons/ai";
 import { TfiCommentsSmiley } from "react-icons/tfi";
-import { FaRegEdit } from "react-icons/fa";
 import { FiShare2 } from "react-icons/fi";
-import { AiTwotoneDelete } from "react-icons/ai";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
 
 import { api, checkz } from "../utils.js";
 import { useNavigate } from "react-router-dom";
@@ -42,6 +41,7 @@ export default function Postingan() {
     count,
     setCount,
   } = useContext(AllStateContext);
+  const [likeLoadingIds, setLikeLoadingIds] = useState([])
   const [off, setOff] = useState(true);
   const [follower, setFollower] = useState({});
   const [visible, setVisible] = useState(false);
@@ -68,15 +68,19 @@ export default function Postingan() {
   const handleNavigate = () => {
     navigate(`/`);
   };
+
+  const isLoading = (postId) => likeLoadingIds.includes(postId);
+  const iconBtn =
+    "p-2 rounded-full transition focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand/50";
+
   return (
     <main
-      className={`flex overflow-y-auto p-[1.5rem] gap-4  w-4/5 ${location.pathname === `/profil/${id.id}` && "justify-center "
-        }`}
+      className={`flex overflow-y-auto p-[1.5rem] gap-4   ${location.pathname === `/profil/${id.id}` ? "justify-center no-scrollbar w-full" : "w-4/5"}`}
     >
-      <div className={`flex  w-[70%] gap-4 flex-col border-[1px] h-max`}>
+      <div className="flex flex-col gap-6 w-full max-w-[640px] mx-auto">
         {postings && postings.length > 0 ? (
           postings?.map((posting) => (
-            <>
+            <React.Fragment key={posting.id}>
               {location.pathname === `/post/${id.id}` && (
                 <button className="flex items-center w-max " onClick={handleNavigate}>
                   <ArrowLeftOutlined style={{ fontSize: "20px", marginRight: "8px" }} />
@@ -85,9 +89,6 @@ export default function Postingan() {
               )}
 
               <div key={posting.id} className={`${posting.id_retweet ? "flex " : "block "} flex-col p-4 ${location.pathname === `/post/${id.id}` ? "pt-0" : ""} border-b`}>
-                {/* Jika posting adalah retweet */}
-
-
                 {posting.id_retweet && (
                   <>
                     <div className="flex w-full justify-between">
@@ -200,49 +201,82 @@ export default function Postingan() {
                           </>
                         )
                         : !posting.id_retweet && (
-                          <span>
-                            <FaRegEdit />
-                            <AiTwotoneDelete
+                          <div className="flex items-center gap-1 text-gray-500">
+
+                            <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                showDeleteConfirm(posting.id, posting.content); // Tampilkan modal
+                                navigate(`/post/${posting.id}`);
                               }}
-                            />
-                          </span>
+                              className={`${iconBtn} text-green-600 hover:bg-green-600/10 hover:text-green-700`}
+                              title="Edit posting"
+                            >
+                              {/* <FaRegEdit size={18} /> */}
+                              <FiEdit2 size={18} />
+                            </button>
+
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                showDeleteConfirm(posting.id, posting.content);
+                              }}
+                              className={`${iconBtn} text-red-500 hover:bg-red-500/10 hover:text-red-600`}
+                              title="Hapus posting"
+                            >
+                              {/* <AiTwotoneDelete size={18} /> */}
+                              <FiTrash2 size={18} />
+                            </button>
+
+
+                          </div>
                         )}
                     </div>
                   </div>
                   <Content isi={{ isi: posting.content }} />
-                  <img className="m-auto" src={`${posting.mediaUrl}`} alt="Posting Error" />
+                  <div className="w-full aspect-[4/3] overflow-hidden rounded-lg">
+                    <img
+                      src={posting.mediaUrl}
+                      alt="Media posting"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <hr className="border border-black" />
                 </button>
-                <div className="flex justify-evenly items-center w-full relative">
+                <div className="flex justify-between items-center mt-4 text-gray-500">
                   {/* Like Button */}
                   <button
-                    disabled={!off}
-                    className="flex items-center w-[3.5rem] justify-around "
-                    onClick={() => {
-                      setOff((prevOff) => !prevOff);
-                      temp.current = {
-                        ...like,
-                        post: posting.id,
-                        user: user?.id,
-                      };
-                      setLike(temp.current);
-                      const kondisi = checks.find(
+                    disabled={isLoading(posting.id)}
+                    className="flex items-center gap-1 hover:text-green-600 transition "
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (isLoading(posting.id)) return;
+
+                      setLikeLoadingIds((prev) => [...prev, posting.id]);
+
+                      const alreadyLiked = checks.some(
                         (c) => c.id_post === posting.id && c.id_user === user?.id
                       );
-                      kondisi
-                        ? api.delete(`/like/${user?.id}/${posting.id}`)
-                        : api.post("/like", temp.current);
 
-                      api.get("/like/check").then((e) => {
-                        setChecks(e);
-                      });
-                      api.get("/like").then((e) => {
-                        setCount(e);
-                      });
-                      setOff((prevOff) => !prevOff);
+                      try {
+                        if (alreadyLiked) {
+                          await api.delete(`/like/${user.id}/${posting.id}`);
+                        } else {
+                          await api.post("/like", { post: posting.id, user: user.id });
+                        }
+
+                        const [checkRes, countRes] = await Promise.all([
+                          api.get("/like/check"),
+                          api.get("/like"),
+                        ]);
+                        setChecks(checkRes);
+                        setCount(countRes);
+                      } catch (err) {
+                        console.error("Error like:", err);
+                      } finally {
+                        // lepas loading
+                        setLikeLoadingIds((prev) => prev.filter((p) => p !== posting.id));
+                      }
                     }}
                   >
                     <AiFillLike
@@ -297,17 +331,18 @@ export default function Postingan() {
                     )}
                   </button>
                 </div>
-              </div>
-            </>
+              </div >
+            </ React.Fragment>
 
           ))
         ) : (
-          <p>No postings available.</p>
-        )}
-      </div>
+          <p className="text-center text-sm text-gray-500" >You haven’t liked any posts yet.</p>
+        )
+        }
+      </div >
       {location.pathname !== `/profil/${id.id}` && <RekomendasiFollower />}
 
-      <Modal
+      < Modal
         title="Konfirmasi Penghapusan"
         visible={visible}
         onOk={handleDelete}
@@ -316,7 +351,7 @@ export default function Postingan() {
         cancelText="Batal"
       >
         <p>Apakah Anda yakin ingin menghapus postingan ini?</p>
-      </Modal>
-    </main>
+      </Modal >
+    </main >
   );
 }

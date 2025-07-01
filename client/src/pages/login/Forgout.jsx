@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api2 } from "../../utils";
 import { useState, useRef } from "react";
 import Rubric from "../../components/Rubric";
-import { Form, Input, Button, Modal } from "antd";  // Import Modal from antd
+import { Modal } from "antd"; // Hanya Modal dari Ant Design yang tetap digunakan
 
 export default function Forgout() {
   const [forgout, setForgout] = useState({});
@@ -10,7 +10,9 @@ export default function Forgout() {
   const temp = useRef(0);
   const navigate = useNavigate();
 
-  const onFinish = async () => {
+  const onFinish = async (e) => {
+    e.preventDefault(); // Mencegah form melakukan submit secara default
+
     if (temp.current === 1) {
       await api2("/login/forgout", "PUT", forgout);
 
@@ -32,7 +34,6 @@ export default function Forgout() {
           navigate("/login");
         },
       });
-
     } else {
       await api2("/login/check", "POST", forgout);
       setOpenPassword(true);
@@ -45,73 +46,68 @@ export default function Forgout() {
       <Rubric />
       <div className="w-[80%] sm:w-[46%] lg:w-[34%] bg-[#94A684] p-12 rounded-lg">
         <h3 className="text-3xl text-center mb-6">Forgot</h3>
-        <Form
-          layout="vertical"
-          onFinish={onFinish}
+        <form
+          onSubmit={onFinish}
           className="space-y-4"
-          validateTrigger="onSubmit"
         >
           {!openPassword ? (
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[
-                { required: true, message: "Email is required" },
-                { type: "email", message: "Invalid email format" },
-              ]}
-            >
-              <Input
-                autoFocus
+            <div>
+              <label className="block text-white mb-2" htmlFor="email">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                maxLength={30}
                 value={forgout.email ?? ""}
-                onChange={(e) =>
-                  setForgout({ ...forgout, email: e.target.value })
-                }
+                onChange={(e) => setForgout({ ...forgout, email: e.target.value })}
                 placeholder="Enter your email"
+                className="w-full p-2 rounded-md border border-gray-300"
+                required
               />
-            </Form.Item>
+            </div>
           ) : (
-            <Form.Item
-              label="New Password"
-              name="password"
-              rules={[{ required: true, message: "Password is required" }]}
-            >
-              <Input.Password
-                autoFocus
+            <div>
+              <label className="block text-white mb-2" htmlFor="password">
+                New Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                maxLength={30}
                 value={forgout.password ?? ""}
-                onChange={(e) =>
-                  setForgout({ ...forgout, password: e.target.value })
-                }
+                onChange={(e) => setForgout({ ...forgout, password: e.target.value })}
                 placeholder="Enter your new password"
+                className="w-full p-2 rounded-md border border-gray-300"
+                required
               />
-            </Form.Item>
+            </div>
           )}
 
-          <Form.Item>
-            <Button
-              htmlType="submit"
-              block
-              type="default"
-              className="bg-[#E4E4D0] text-black hover:bg-[#94A684] transition duration-150"
+          <div>
+            <button
+              type="submit"
+              className="w-full bg-[#E4E4D0] text-black hover:bg-[#94A684] hover:shadow-lg transition-all duration-150 py-2 rounded-md"
             >
               Submit
-            </Button>
-          </Form.Item>
+            </button>
+          </div>
 
           <div className="flex justify-between">
             <Link
               to="/login"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(84_108_84)] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
             >
               Login
             </Link>
             <Link
               to="/register"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(84_108_84)] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
             >
               Register
             </Link>
           </div>
-        </Form>
+        </form>
       </div>
     </div>
   );
