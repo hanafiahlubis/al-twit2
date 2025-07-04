@@ -8,7 +8,55 @@ const type = upload.single('file')
 
 const router = express.Router();
 
+
+const deletePostAndRelatedData = async (postId) => {
+  try {
+    // Mulai transaksi untuk menjaga konsistensi data
+    await client.query('BEGIN');
+
+    // CTE untuk menemukan post yang merujuk ke post utama (id = 1)
+    await client.query(`
+      WITH RECURSIVE post_hierarchy AS (
+        -- Mulai dengan post yang memiliki id_retweet = $1
+        SELECT id, id_retweet
+        FROM post_al
+        WHERE id_retweet = $1
+        UNION ALL
+        -- Temukan post yang merujuk ke post sebelumnya
+        SELECT p.id, p.id_retweet
+        FROM post_al p
+        JOIN post_hierarchy ph ON ph.id = p.id_retweet
+      )
+      DELETE FROM post_al WHERE id IN (SELECT id FROM post_hierarchy);
+    `, [postId]);
+
+    // Hapus komentar terkait post
+    await client.query('DELETE FROM commentar WHERE id_pos = $1', [postId]);
+
+    // Hapus suka terkait post
+    await client.query('DELETE FROM suka WHERE id_post = $1', [postId]);
+
+    // Hapus post itu sendiri
+    await client.query('DELETE FROM post_al WHERE id = $1', [postId]);
+
+    // Commit transaksi jika berhasil
+    await client.query('COMMIT');
+    console.log('Post and all related data deleted successfully');
+  } catch (error) {
+    // Jika terjadi error, rollback transaksi
+    await client.query('ROLLBACK');
+    console.error('Error deleting post and related data:', error);
+  } finally {
+    // Tutup koneksi database
+    await client.end();
+  }
+};
+
+// Panggil fungsi deletePostAndRelatedData dengan ID post yang ingin dihapus
+// deletePostAndRelatedData(1);
 router.post("/add", type, async (req, res) => {
+    console.log(req.body.user);
+    
     await client.query("insert into post_al (id_user,content,media,time_now) values($1,$2,$3,$4)", [req.body.user, req.body.content, req.file.filename, new Date()])
     res.send("berhasil")
 });

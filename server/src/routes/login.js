@@ -9,14 +9,30 @@ const router = express.Router();
 async function chekEmail(email) {
     return await client.query("select * from akun where email = $1 ", [email])
 }
+
 router.post("/check", async (req, res) => {
-    if ((await chekEmail(req.body.email)).rows.length > 0) {
-        res.send("Berhasil mengambil");
-    } else {
-        res.status(401);
-        res.send("Email Tidak Di temukan");
+    try {
+        const result = await chekEmail(req.body.email);
+        if (result.rows.length > 0) {
+            res.status(200).json({
+                success: true,
+                message: "Berhasil mengambil data pengguna.",
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: "Email tidak ditemukan.",
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Terjadi kesalahan pada server.",
+        });
     }
-})
+});
+
 // async function a() {
 //     const salt = await bcrypt.genSalt(); // fdsfsfs
 //     const hash = await bcrypt.hash("123456789", salt);
@@ -56,26 +72,41 @@ router.post("/daftar", async (req, res) => {
 });
 
 router.put("/forgout", async (req, res) => {
-    // 
-    const results = await chekEmail(req.body.email);
+    try {
+        const results = await chekEmail(req.body.email);
 
-    if (results.rows.length > 0) {
-        const salt = await bcrypt.genSalt();
-        const hash = await bcrypt.hash(req.body.password, salt);
-        await client.query("update akun set password = $1  where email = $2 ", [hash, req.body.email]);
-        res.send("Berhasil di ubah")
-    } else {
-        res.status(401);
-        res.send("Tidak di temukan");
+        if (results.rows.length > 0) {
+            const salt = await bcrypt.genSalt();
+            const hash = await bcrypt.hash(req.body.password, salt);
+
+            await client.query("UPDATE akun SET password = $1 WHERE email = $2", [hash, req.body.email]);
+
+            res.status(200).json({
+                success: true,
+                message: "Password berhasil diubah.",
+            });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: "Email tidak ditemukan.",
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Terjadi kesalahan pada server. Silakan coba lagi.",
+        });
     }
-})
+});
+
 
 // Untuk mengakses file statis(khusus Vercel)
 
 router.post("/", async (req, res) => {
-    
+
     const user = (await chekEmail(req.body.email)).rows;
-    
+
     if (user.length > 0) {
         if (await bcrypt.compare(req.body.password, user[0].password)) {
             const token = jwt.sign(user[0], process.env.SECRET_KEY);
