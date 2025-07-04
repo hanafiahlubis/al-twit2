@@ -2,21 +2,23 @@ import { Link, useNavigate } from "react-router-dom";
 import { api2 } from "../../utils";
 import { useState } from "react";
 import Rubric from "../../components/Rubric";
-import { Form, Input, Button, Modal } from "antd";
+import { Modal, Input } from "antd"; // Import Input from Ant Design
 
 export default function Register() {
   const [register, setRegister] = useState({});
   const [emailError, setEmailError] = useState(null); // Store email error message
   const navigate = useNavigate();
 
-  const onFinish = async () => {
+  const onFinish = async (e) => {
+    e.preventDefault(); // Mencegah form melakukan submit secara default
+
     const response = await api2("/login/daftar", "POST", register);
     console.log(response.status);
 
-    if (response.status == 201) {
+    if (response.status === 201) {
       setRegister({});
       navigate("/login");
-    } else if (response.status == 401) {
+    } else if (response.status === 401) {
       setEmailError(response.message || "Email sudah terdaftar!");
     } else {
       Modal.error({
@@ -38,87 +40,88 @@ export default function Register() {
       <Rubric />
       <div className="w-[80%] sm:w-[46%] lg:w-[34%] bg-[#94A684] p-12 rounded-lg">
         <h3 className="text-3xl text-center mb-6">Register</h3>
-        <Form layout="vertical" onFinish={onFinish} className="space-y-4" validateTrigger="onSubmit">
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Email is required" },
-              { type: "email", message: "Invalid email format" },
-            ]}
-            /* tampilkan error backend saja, biarkan error bawaan AntD bekerja */
-            validateStatus={emailError ? "error" : undefined}
-            help={emailError || undefined}
-          >
+        <form onSubmit={onFinish} className="space-y-4">
+          <div>
+            <label className="block text-white mb-2" htmlFor="email">
+              Email
+            </label>
             <Input
+              id="email"
+              type="email"
               value={register.email ?? ""}
               onChange={(e) => {
-                setEmailError(null);                 // hapus pesan backend kalau user ubah input
+                setEmailError(null); // Clear backend error when user changes input
                 setRegister({ ...register, email: e.target.value });
               }}
+              placeholder="Enter your email"
+              className="w-full"
             />
-          </Form.Item>
+            {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+          </div>
 
-          <Form.Item
-            label="Password"
-            name="password"
-            rules={[{ required: true, message: "Password is required" }]}
-          >
+          <div>
+            <label className="block text-white mb-2" htmlFor="password">
+              Password
+            </label>
             <Input.Password
+              id="password"
               value={register.password ?? ""}
               onChange={(e) => setRegister({ ...register, password: e.target.value })}
+              placeholder="Enter your password"
+              className="w-full"
             />
-          </Form.Item>
+          </div>
 
-          <Form.Item
-            label="Full Name"
-            name="full_name"
-            rules={[{ required: true, message: "Full Name is required" }]}
-          >
+          <div>
+            <label className="block text-white mb-2" htmlFor="full_name">
+              Full Name
+            </label>
             <Input
+              id="full_name"
               value={register.full_name ?? ""}
               onChange={(e) => setRegister({ ...register, full_name: e.target.value })}
+              placeholder="Enter your full name"
+              className="w-full"
             />
-          </Form.Item>
+          </div>
 
-          <Form.Item
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: "Username is required" }]}
-          >
+          <div>
+            <label className="block text-white mb-2" htmlFor="username">
+              Username
+            </label>
             <Input
+              id="username"
               value={register.username ?? ""}
               onChange={(e) => setRegister({ ...register, username: e.target.value })}
+              placeholder="Enter your username"
+              className="w-full"
             />
-          </Form.Item>
+          </div>
 
-
-          <Form.Item>
-            <Button
-              htmlType="submit"
-              block
-              type="default"
-              className="bg-[#E4E4D0] text-black hover:bg-[#94A684] transition duration-150"
+          <div>
+            <button
+              type="submit"
+              className="w-full bg-[#E4E4D0] text-black hover:bg-[#94A684] hover:shadow-lg transition-all duration-150 py-2 rounded-md"
             >
               Submit
-            </Button>
-          </Form.Item>
+            </button>
+          </div>
 
           <div className="flex justify-between">
             <Link
               to="/login"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(84_108_84)] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] hover:shadow-lg transition duration-150"
             >
               Login
             </Link>
             <Link
               to="/forgout"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:text-[rgb(84_108_84)] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] hover:shadow-lg transition duration-150"
             >
               Forgot
             </Link>
           </div>
-        </Form>
+        </form>
       </div>
     </div>
   );

@@ -115,6 +115,7 @@ export default function Postingan() {
 
                                   await api.delete("/follower", follower);
                                 }}
+                                className="unfollower-btn flex items-center gap-2 p-2 border rounded-md text-white bg-red-600 hover:bg-red-700 transition duration-300"
                               >
                                 UnFollower
                               </button>
@@ -128,6 +129,7 @@ export default function Postingan() {
                                   });
                                   setTimeout(async () => await api.post("/follower", follower), 500);
                                 }}
+                                className="follower-btn flex items-center gap-2 p-2 border rounded-md text-white bg-green-600 hover:bg-green-700 transition duration-300"
                               >
                                 Follower
                               </button>

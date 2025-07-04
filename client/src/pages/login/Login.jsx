@@ -2,6 +2,7 @@ import { useNavigate, useOutletContext, Link, Navigate } from "react-router-dom"
 import Rubric from "../../components/Rubric";
 import { useState } from "react";
 import { api } from "../../utils.js";
+import { Modal, Input } from "antd"; // Import Modal and Input from Ant Design
 
 export default function Login() {
   const [login, setLogin] = useState({});
@@ -10,6 +11,7 @@ export default function Login() {
 
   if (user) return <Navigate to="/" />;
   const API_URL = import.meta.env.VITE_API_URL;
+
   const onFinish = async (e) => {
     e.preventDefault();
     const response = await fetch(`${API_URL}/api/login`, {
@@ -26,7 +28,22 @@ export default function Login() {
       navigate("/");
     } else {
       const message = await response.text();
-      alert(message);
+
+      // Display a modal error instead of alert
+      Modal.error({
+        title: 'Login Failed',
+        content: message || "Invalid credentials. Please try again.",
+        style: {
+          top: "10px"
+        },
+        okButtonProps: {
+          style: {
+            backgroundColor: "#94A684", // Color matching the theme
+            borderColor: "#94A684",
+            color: "#000",
+          },
+        },
+      });
     }
   };
 
@@ -35,21 +52,20 @@ export default function Login() {
       <Rubric />
       <div className="w-[80%] sm:w-[46%] lg:w-[34%] bg-[#94A684] p-12 rounded-lg">
         <h3 className="text-3xl text-center mb-6">Login</h3>
-        <form
-          onSubmit={onFinish}
-          className="space-y-4"
-        >
+        <form onSubmit={onFinish} className="space-y-4">
           <div>
             <label className="block text-white mb-2" htmlFor="email">
               Email
             </label>
-            <input
+            <Input
               id="email"
               type="email"
               maxLength={30}
               placeholder="example@example.com"
+              value={login.email ?? ""}
               onChange={(e) => setLogin({ ...login, email: e.target.value })}
-              className="w-full p-2 rounded-md border border-gray-300"
+              className="w-full"
+              required
             />
           </div>
 
@@ -57,13 +73,14 @@ export default function Login() {
             <label className="block text-white mb-2" htmlFor="password">
               Password
             </label>
-            <input
+            <Input.Password
               id="password"
-              type="password"
               maxLength={30}
               placeholder="Enter your password"
+              value={login.password ?? ""}
               onChange={(e) => setLogin({ ...login, password: e.target.value })}
-              className="w-full p-2 rounded-md border border-gray-300"
+              className="w-full"
+              required
             />
           </div>
 
@@ -79,13 +96,13 @@ export default function Login() {
           <div className="flex justify-between">
             <Link
               to="/forgout"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] hover:shadow-lg transition duration-150"
             >
               Forgot
             </Link>
             <Link
               to="/register"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] hover:shadow-lg transition duration-150"
             >
               Register
             </Link>

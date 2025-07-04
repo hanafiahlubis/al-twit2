@@ -20,7 +20,7 @@ export default function RekomendasiFollower() {
             {allFollower?.map((follower, i) => (
               <div
                 key={i}
-                className="flex justify-between items-center bg-white p-4 rounded-md shadow-sm hover:bg-gray-50 transition"
+                className="flex justify-between items-center bg-white p-4 rounded-md shadow-sm hover:bg-gray-50 transition gap-1"
               >
                 <h3 className="font-medium text-gray-700">{follower.full_name}</h3>
                 <button

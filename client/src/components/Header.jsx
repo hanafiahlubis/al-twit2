@@ -144,8 +144,8 @@ export default function Header() {
         onSubmit={handleCommentSubmit}
       />
       <PostModal
-        visible={openAdd}
-        onCancel={() => setOpenAdd(!false)}
+        visible={!openAdd}
+        onCancel={() => setOpenAdd(true)}
         onSubmit={handlePostSubmit}
       />
 

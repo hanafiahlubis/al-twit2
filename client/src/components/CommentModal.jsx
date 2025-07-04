@@ -56,7 +56,6 @@ const CommentModal = ({ visible, onCancel, onSubmit }) => {
       <Form
         form={form}
         onFinish={handleSubmit}
-        initialValues={{ commentar: dataComentar.commentar }} // Initial value for textarea
         layout="vertical"
       >
         <div className="mb-3 text-sm text-gray-600">Email&nbsp;&nbsp;&nbsp; :  {dataComentar.email}</div>

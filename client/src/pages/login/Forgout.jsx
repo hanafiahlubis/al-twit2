@@ -1,8 +1,8 @@
+import { Input, Modal } from "antd"; // Import Input from Ant Design
 import { Link, useNavigate } from "react-router-dom";
 import { api2 } from "../../utils";
 import { useState, useRef } from "react";
 import Rubric from "../../components/Rubric";
-import { Modal } from "antd"; // Hanya Modal dari Ant Design yang tetap digunakan
 
 export default function Forgout() {
   const [forgout, setForgout] = useState({});
@@ -11,33 +11,92 @@ export default function Forgout() {
   const navigate = useNavigate();
 
   const onFinish = async (e) => {
-    e.preventDefault(); // Mencegah form melakukan submit secara default
+    e.preventDefault();
 
-    if (temp.current === 1) {
-      await api2("/login/forgout", "PUT", forgout);
+    try {
+      if (temp.current === 1) {
+        const response = await api2("/login/forgout", "PUT", forgout);
 
-      // Pop-up success message using Modal
-      Modal.success({
-        title: "Success",
-        content: "Berhasil Mengubah Sandi",
+        if (response.success) {
+          const modal = Modal.success({
+            title: "Success",
+            content: "Berhasil Mengubah Sandi",
+            style: {
+              top: "10px",
+            },
+            okButtonProps: {
+              style: {
+                backgroundColor: "#94A684",
+                borderColor: "#94A684",
+                color: "#000",
+              },
+            },
+            onOk() {
+              setOpenPassword(false);
+              temp.current = 0;
+              setForgout({});
+              navigate("/login");
+            },
+          });
+
+          setTimeout(() => {
+            navigate("/login");
+            modal.destroy();
+          }, 10000);
+        } else {
+          Modal.error({
+            title: "Error",
+            content: "Gagal Mengubah Sandi. Silakan coba lagi.",
+            style: {
+              top: "10px",
+            },
+            okButtonProps: {
+              style: {
+                backgroundColor: "#94A684",
+                borderColor: "#94A684",
+                color: "#000",
+              },
+            },
+          });
+        }
+      } else {
+        const response = await api2("/login/check", "POST", forgout);
+
+        if (response.success === true) {
+          setOpenPassword(true);
+          temp.current++;
+        } else {
+          Modal.error({
+            title: "Email Failed",
+            content: "Email tidak terdaftar. Silakan periksa kembali.",
+            style: {
+              top: "10px",
+            },
+            okButtonProps: {
+              style: {
+                backgroundColor: "#94A684",
+                borderColor: "#94A684",
+                color: "#000",
+              },
+            },
+          });
+        }
+      }
+    } catch (error) {
+      Modal.error({
+        title: "Error",
+        content: "Terjadi kesalahan. Silakan coba lagi.",
+        style: {
+          top: "10px",
+        },
         okButtonProps: {
           style: {
-            backgroundColor: "#94A684", // Color matching with 'Forgot' button
-            borderColor: "#94A684", // Matching border color
-            color: "#000", // White text
+            backgroundColor: "#94A684",
+            borderColor: "#94A684",
+            color: "#000",
           },
         },
-        onOk() {
-          setOpenPassword(false);
-          temp.current = 0;
-          setForgout({});
-          navigate("/login");
-        },
       });
-    } else {
-      await api2("/login/check", "POST", forgout);
-      setOpenPassword(true);
-      temp.current++;
     }
   };
 
@@ -46,23 +105,20 @@ export default function Forgout() {
       <Rubric />
       <div className="w-[80%] sm:w-[46%] lg:w-[34%] bg-[#94A684] p-12 rounded-lg">
         <h3 className="text-3xl text-center mb-6">Forgot</h3>
-        <form
-          onSubmit={onFinish}
-          className="space-y-4"
-        >
+        <form onSubmit={onFinish} className="space-y-4">
           {!openPassword ? (
             <div>
               <label className="block text-white mb-2" htmlFor="email">
                 Email
               </label>
-              <input
+              <Input
                 id="email"
                 type="email"
                 maxLength={30}
                 value={forgout.email ?? ""}
                 onChange={(e) => setForgout({ ...forgout, email: e.target.value })}
                 placeholder="Enter your email"
-                className="w-full p-2 rounded-md border border-gray-300"
+                className="w-full"
                 required
               />
             </div>
@@ -71,14 +127,13 @@ export default function Forgout() {
               <label className="block text-white mb-2" htmlFor="password">
                 New Password
               </label>
-              <input
+              <Input.Password
                 id="password"
-                type="password"
                 maxLength={30}
                 value={forgout.password ?? ""}
                 onChange={(e) => setForgout({ ...forgout, password: e.target.value })}
                 placeholder="Enter your new password"
-                className="w-full p-2 rounded-md border border-gray-300"
+                className="w-full"
                 required
               />
             </div>
@@ -96,13 +151,13 @@ export default function Forgout() {
           <div className="flex justify-between">
             <Link
               to="/login"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] hover:shadow-lg transition duration-150"
             >
               Login
             </Link>
             <Link
               to="/register"
-              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] transition duration-150"
+              className="bg-[#E4E4D0] px-4 py-1 rounded-md text-sm hover:bg-[#94A684] hover:shadow-lg transition duration-150"
             >
               Register
             </Link>
